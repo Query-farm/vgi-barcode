@@ -52,7 +52,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Install haybarn-unittest
         run: uv tool install haybarn-unittest
