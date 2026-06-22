@@ -1,0 +1,38 @@
+[workspace]
+resolver = "2"
+members = ["crates/barcode-worker"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT"
+authors = ["Query Farm LLC <hello@query.farm>"]
+repository = "https://github.com/Query-farm/vgi-barcode"
+
+[workspace.dependencies]
+# VGI Rust SDK (worker side), published on crates.io. Pulls in vgi-rpc 0.2 and
+# arrow 58 transitively; keep arrow/vgi-rpc here in lockstep with vgi's pins so a
+# single arrow/vgi-rpc resolves.
+vgi = "0.5.0"
+vgi-rpc = { version = "0.2.0", default-features = false, features = ["macros", "http"] }
+arrow-array = "58"
+arrow-buffer = "58"
+arrow-schema = "58"
+
+# Barcode / QR decode + encode: the maintained Rust port of ZXing. Provides
+# multi-format decode (QR, EAN-8/13, UPC-A/E, Code128/39/93, ITF, Codabar,
+# DataMatrix, PDF417, Aztec) and encode. Default features bring in the `image`
+# crate + decoders/encoders + multi-barcode readers.
+rxing = "=0.9.1"
+
+# Image decode (BLOB in) / encode (PNG out for generators). Pinned to =0.25.8 to
+# match rxing 0.9.1's exact `image` pin (so a single `image` resolves) and to
+# keep MSRV at the workspace rust-version (1.86); 0.25.10 bumps MSRV past 1.86.
+# Default features off; only the common web/photo raster formats enabled.
+image = { version = "=0.25.8", default-features = false, features = [
+    "png", "jpeg", "gif", "bmp", "webp",
+] }
+
+[profile.release]
+opt-level = 2

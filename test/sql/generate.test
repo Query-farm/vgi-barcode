@@ -1,0 +1,60 @@
+# name: test/sql/generate.test
+# group: [vgi_barcode]
+#
+# generate_qr / generate_barcode produce decodable PNG BLOBs; arity overloads
+# (size_px) work; an invalid format name is a clear error; NULL text → NULL.
+
+require-env VGI_BARCODE_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'barcode' AS barcode (TYPE vgi, LOCATION '${VGI_BARCODE_WORKER}');
+
+statement ok
+SET search_path = 'barcode.main';
+
+# generate_qr returns a non-empty PNG BLOB.
+query I
+SELECT octet_length(generate_qr('round trip')) > 0;
+----
+true
+
+# Round-trip the 2-arg (sized) overload.
+query II
+SELECT decode_barcode(generate_qr('sized', 300)),
+       barcode_format(generate_qr('sized', 300));
+----
+sized	QR_CODE
+
+# generate_barcode round-trips for an EAN-13 payload.
+query II
+SELECT decode_barcode(generate_barcode('5901234123457', 'EAN_13')),
+       barcode_format(generate_barcode('5901234123457', 'EAN_13'));
+----
+5901234123457	EAN_13
+
+# generate_barcode round-trips for Code 128 with an explicit size.
+query II
+SELECT decode_barcode(generate_barcode('HELLO-128', 'CODE_128', 400)),
+       barcode_format(generate_barcode('HELLO-128', 'CODE_128', 400));
+----
+HELLO-128	CODE_128
+
+# NULL text → NULL output.
+query I
+SELECT generate_qr(NULL) IS NULL;
+----
+true
+
+# An invalid format name is a clear DuckDB error.
+statement error
+SELECT generate_barcode('x', 'NOT_A_FORMAT');
+----
+
+statement ok
+USE memory;
+
+statement ok
+DETACH barcode;

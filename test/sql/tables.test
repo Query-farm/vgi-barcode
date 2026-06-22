@@ -1,0 +1,68 @@
+# name: test/sql/tables.test
+# group: [vgi_barcode]
+#
+# Table functions: decode_barcodes() yields one row per detected code;
+# barcode_formats() is the discovery list (count > 0). Undecodable input yields
+# no rows (the worker stays alive).
+#
+# NOTE: DuckDB table functions take *constant* arguments (no subqueries), so the
+# image BLOB is supplied as a constant-foldable expression — here the worker's
+# own generators round-tripped back through the multi-decoder.
+
+require-env VGI_BARCODE_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'barcode' AS barcode (TYPE vgi, LOCATION '${VGI_BARCODE_WORKER}');
+
+statement ok
+SET search_path = 'barcode.main';
+
+# decode_barcodes over a generated QR: exactly one row with the known values.
+query ITT rowsort
+SELECT seq, format, text FROM decode_barcodes(generate_qr('vgi-barcode'));
+----
+0	QR_CODE	vgi-barcode
+
+# At least one barcode is detected.
+query I
+SELECT count(*) >= 1 FROM decode_barcodes(generate_qr('vgi-barcode'));
+----
+true
+
+# decode_barcodes over a generated Code 128 barcode.
+query TT rowsort
+SELECT format, text FROM decode_barcodes(generate_barcode('ABC-12345', 'CODE_128', 400));
+----
+CODE_128	ABC-12345
+
+# Garbage bytes → no rows (the worker survives).
+query I
+SELECT count(*) FROM decode_barcodes('not an image'::BLOB);
+----
+0
+
+# NULL blob → no rows.
+query I
+SELECT count(*) FROM decode_barcodes(NULL::BLOB);
+----
+0
+
+# barcode_formats() discovery: the supported list is non-empty and includes QR.
+query I
+SELECT count(*) > 0 FROM barcode_formats();
+----
+true
+
+query I
+SELECT count(*) FROM barcode_formats() WHERE format = 'QR_CODE';
+----
+1
+
+statement ok
+USE memory;
+
+statement ok
+DETACH barcode;

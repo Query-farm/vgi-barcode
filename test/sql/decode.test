@@ -1,0 +1,83 @@
+# name: test/sql/decode.test
+# group: [vgi_barcode]
+#
+# decode_barcode() / barcode_format() over real fixture BLOBs, plus the hostile-
+# input contract: NULL in → NULL out, and a garbage blob → NULL (worker survives).
+
+require-env VGI_BARCODE_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'barcode' AS barcode (TYPE vgi, LOCATION '${VGI_BARCODE_WORKER}');
+
+statement ok
+SET search_path = 'barcode.main';
+
+# The QR fixture decodes to its known text and reports format QR_CODE.
+query II
+SELECT decode_barcode(content), barcode_format(content)
+FROM read_blob('test/sql/data/qr.png');
+----
+vgi-barcode	QR_CODE
+
+# The Code 128 fixture decodes to its known text and format.
+query II
+SELECT decode_barcode(content), barcode_format(content)
+FROM read_blob('test/sql/data/code128.png');
+----
+ABC-12345	CODE_128
+
+# Round-trip: generate a QR for 'hi' then decode it back.
+query I
+SELECT decode_barcode(generate_qr('hi'));
+----
+hi
+
+# NULL input → NULL output (no row-level error).
+query I
+SELECT decode_barcode(NULL) IS NULL;
+----
+true
+
+query I
+SELECT barcode_format(NULL) IS NULL;
+----
+true
+
+# Garbage bytes → NULL, NOT an error (the worker must stay alive on bad input).
+query I
+SELECT decode_barcode('not an image'::BLOB) IS NULL;
+----
+true
+
+query I
+SELECT barcode_format('not an image'::BLOB) IS NULL;
+----
+true
+
+# Empty BLOB → NULL too.
+query I
+SELECT decode_barcode(''::BLOB) IS NULL;
+----
+true
+
+# A bad blob beside a good one: the good one still decodes, the worker survives.
+query II
+SELECT decode_barcode(b) AS text, barcode_format(b) AS fmt
+FROM (
+  SELECT 1 AS ord, 'garbage'::BLOB AS b
+  UNION ALL
+  SELECT 2 AS ord, content AS b FROM read_blob('test/sql/data/qr.png')
+) t
+ORDER BY ord;
+----
+NULL	NULL
+vgi-barcode	QR_CODE
+
+statement ok
+USE memory;
+
+statement ok
+DETACH barcode;
