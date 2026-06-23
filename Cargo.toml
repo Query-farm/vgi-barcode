@@ -16,9 +16,9 @@ repository = "https://github.com/Query-farm/vgi-barcode"
 # single arrow/vgi-rpc resolves.
 vgi = "0.6.0"
 vgi-rpc = { version = "0.4.0", default-features = false, features = ["macros", "http"] }
-arrow-array = "58"
-arrow-buffer = "58"
-arrow-schema = "58"
+arrow-array = "59"
+arrow-buffer = "59"
+arrow-schema = "59"
 
 # Barcode / QR decode + encode: the maintained Rust port of ZXing. Provides
 # multi-format decode (QR, EAN-8/13, UPC-A/E, Code128/39/93, ITF, Codabar,
