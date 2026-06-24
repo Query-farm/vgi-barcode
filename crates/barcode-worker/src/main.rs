@@ -52,22 +52,32 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                     .to_string(),
             ),
             (
-                "vgi.description_llm".to_string(),
+                "vgi.doc_llm".to_string(),
                 "Decode barcodes and QR codes out of image BLOBs (PNG/JPEG/GIF/BMP/WebP) and \
                  generate barcode/QR PNGs from text. Read the text and format name of the first \
                  symbol in an image, fan one image out into every symbol it contains, encode text \
                  as a QR code or a named symbology (EAN_13, UPC_A, CODE_128, CODE_39, ITF, \
-                 CODABAR, DATA_MATRIX, PDF_417, AZTEC, …), and list the supported formats. Use \
-                 for reading product/QR codes from photos and for producing scannable barcode \
-                 images in SQL."
+                 CODABAR, DATA_MATRIX, PDF_417, AZTEC, …), and list the supported formats. Decode \
+                 paths are hardened against hostile/oversized images and return NULL or zero rows \
+                 instead of erroring, so they are safe to run over untrusted data; encode paths \
+                 raise a clear error for an unknown format or an unencodable payload. Use for \
+                 reading product/QR codes from photos and for producing scannable barcode images \
+                 in SQL."
                     .to_string(),
             ),
             (
-                "vgi.description_md".to_string(),
-                "# barcode\n\nBarcode / QR-code decode and generation over Apache Arrow, powered \
-                 by the Rust ZXing port (`rxing`).\n\nScalars: `decode_barcode`, `barcode_format`, \
-                 `generate_qr`, `generate_barcode`, `barcode_version`. Tables: `decode_barcodes`, \
-                 `barcode_formats`."
+                "vgi.doc_md".to_string(),
+                "# barcode\n\nBarcode and QR-code **decode and generation** for DuckDB, over \
+                 Apache Arrow IPC. The engine is the maintained Rust port of ZXing \
+                 ([`rxing`](https://crates.io/crates/rxing)).\n\n## What you can do\n\n- **Read** \
+                 the text and format of the first symbol in an image BLOB \
+                 (`decode_barcode`, `barcode_format`).\n- **Fan out** one image into every symbol \
+                 it contains, one row each (`decode_barcodes`).\n- **Generate** a QR code or a \
+                 named symbology as a PNG BLOB (`generate_qr`, `generate_barcode`).\n- **Discover** \
+                 the supported symbologies (`barcode_formats`) and the worker version \
+                 (`barcode_version`).\n\n## Notes\n\nSupported input rasters: PNG, JPEG, GIF, BMP, \
+                 WebP. Decoding never crashes on untrusted bytes — a bad, empty, or oversized \
+                 image simply yields NULL (scalars) or no rows (tables)."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -107,15 +117,23 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                         .to_string(),
                 ),
                 (
-                    "vgi.description_llm".to_string(),
+                    "vgi.doc_llm".to_string(),
                     "Barcode / QR-code decode and generation functions: read the text and format \
                      of barcodes in an image, fan an image out into all its symbols, encode text \
-                     as a QR code or a named barcode symbology, and list supported formats."
+                     as a QR code or a named barcode symbology, and list supported formats. Decode \
+                     functions return NULL or zero rows on unreadable/hostile input; generate \
+                     functions error on an unknown format or unencodable payload."
                         .to_string(),
                 ),
                 (
-                    "vgi.description_md".to_string(),
-                    "Barcode / QR-code decode and generation functions over Apache Arrow."
+                    "vgi.doc_md".to_string(),
+                    "# barcode.main\n\nThe `main` schema of the barcode worker. It holds the \
+                     scalar functions (`decode_barcode`, `barcode_format`, `generate_qr`, \
+                     `generate_barcode`, `barcode_version`) and table functions \
+                     (`decode_barcodes`, `barcode_formats`) for decoding and generating \
+                     barcodes and QR codes over Apache Arrow.\n\nUse the scalars per-row over an \
+                     image column, the `decode_barcodes` table to fan one image into all of its \
+                     symbols, and `barcode_formats` to discover the supported symbology names."
                         .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.

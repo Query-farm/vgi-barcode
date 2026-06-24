@@ -60,7 +60,7 @@ impl TableFunction for DecodeBarcodes {
             "table/decode_barcodes.rs",
         );
         tags.push((
-            "vgi.columns_md".into(),
+            "vgi.result_columns_md".into(),
             "| column | type | description |\n\
              |---|---|---|\n\
              | `seq` | BIGINT | Zero-based index of the symbol within the image. |\n\

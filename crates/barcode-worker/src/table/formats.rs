@@ -39,7 +39,7 @@ impl TableFunction for BarcodeFormats {
             "table/formats.rs",
         );
         tags.push((
-            "vgi.columns_md".into(),
+            "vgi.result_columns_md".into(),
             "| column | type | description |\n\
              |---|---|---|\n\
              | `format` | VARCHAR | A supported barcode/QR symbology name, e.g. `QR_CODE`, \

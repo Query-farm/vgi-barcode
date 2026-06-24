@@ -2,11 +2,11 @@
 //! `vgi-lint` strict profile expects on **every** function and table.
 //!
 //! Each function/table surfaces these in its `FunctionMetadata.tags`:
-//! - `vgi.title` (VGI124)        — human-friendly display name
-//! - `vgi.description_llm` (VGI112) — concise prose aimed at LLMs
-//! - `vgi.description_md` (VGI113)  — short Markdown description
-//! - `vgi.keywords` (VGI126)        — comma-separated search terms/synonyms
-//! - `vgi.source_url` (VGI128)      — link to the implementing source file
+//! - `vgi.title` (VGI124)      — human-friendly display name
+//! - `vgi.doc_llm` (VGI112)    — Markdown narrative aimed at LLMs/agents
+//! - `vgi.doc_md` (VGI113)     — Markdown narrative for human docs
+//! - `vgi.keywords` (VGI126)   — comma-separated search terms/synonyms
+//! - `vgi.source_url` (VGI128) — link to the implementing source file
 //!
 //! `source_url(file)` builds the canonical GitHub blob URL for a source file so
 //! every object points at exactly where it is implemented.
@@ -26,18 +26,15 @@ pub fn source_url(relative_path: &str) -> String {
 /// `relative_path` is the implementing file relative to `barcode-worker/src`.
 pub fn object_tags(
     title: &str,
-    description_llm: &str,
-    description_md: &str,
+    doc_llm: &str,
+    doc_md: &str,
     keywords: &str,
     relative_path: &str,
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
-        (
-            "vgi.description_llm".to_string(),
-            description_llm.to_string(),
-        ),
-        ("vgi.description_md".to_string(), description_md.to_string()),
+        ("vgi.doc_llm".to_string(), doc_llm.to_string()),
+        ("vgi.doc_md".to_string(), doc_md.to_string()),
         ("vgi.keywords".to_string(), keywords.to_string()),
         ("vgi.source_url".to_string(), source_url(relative_path)),
     ]
