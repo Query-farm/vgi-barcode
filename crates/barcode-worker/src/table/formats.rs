@@ -30,6 +30,14 @@ impl TableFunction for BarcodeFormats {
     fn metadata(&self) -> FunctionMetadata {
         FunctionMetadata {
             description: "List the supported barcode/QR format names".into(),
+            tags: vec![(
+                "vgi.columns_md".into(),
+                "| column | type | description |\n\
+                 |---|---|---|\n\
+                 | `format` | VARCHAR | A supported barcode/QR symbology name, e.g. `QR_CODE`, \
+                 `EAN_13`, `CODE_128`, `DATA_MATRIX`, `PDF_417`, `AZTEC`. |"
+                    .into(),
+            )],
             ..Default::default()
         }
     }

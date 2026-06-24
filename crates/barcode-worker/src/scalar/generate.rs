@@ -13,7 +13,10 @@ use arrow_array::builder::BinaryBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
 use vgi::arguments::Arguments;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::text_str;
@@ -77,9 +80,29 @@ impl ScalarFunction for GenerateQr {
     }
 
     fn metadata(&self) -> FunctionMetadata {
+        let (description, example) = if self.with_size {
+            (
+                "Generate a QR-code PNG (BLOB) for the given text at a chosen pixel size",
+                FunctionExample {
+                    sql: "SELECT barcode.main.generate_qr('https://query.farm', 512);".into(),
+                    description: "Encode a URL as a 512x512-pixel QR-code PNG.".into(),
+                    expected_output: None,
+                },
+            )
+        } else {
+            (
+                "Generate a QR-code PNG (BLOB) for the given text at the default size",
+                FunctionExample {
+                    sql: "SELECT barcode.main.generate_qr('https://query.farm');".into(),
+                    description: "Encode a URL as a default-size QR-code PNG.".into(),
+                    expected_output: None,
+                },
+            )
+        };
         FunctionMetadata {
-            description: "Generate a QR-code PNG (BLOB) for the given text".into(),
+            description: description.into(),
             return_type: Some(DataType::Binary),
+            examples: vec![example],
             ..Default::default()
         }
     }
@@ -153,9 +176,33 @@ impl ScalarFunction for GenerateBarcode {
     }
 
     fn metadata(&self) -> FunctionMetadata {
+        let (description, example) = if self.with_size {
+            (
+                "Generate a barcode PNG (BLOB) for the given text in a named symbology at a chosen \
+                 pixel width",
+                FunctionExample {
+                    sql: "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);"
+                        .into(),
+                    description: "Encode an EAN-13 product code as a 600-pixel-wide barcode PNG."
+                        .into(),
+                    expected_output: None,
+                },
+            )
+        } else {
+            (
+                "Generate a barcode PNG (BLOB) for the given text in a named symbology at the \
+                 default size",
+                FunctionExample {
+                    sql: "SELECT barcode.main.generate_barcode('CODE128', 'CODE_128');".into(),
+                    description: "Encode text as a default-size Code 128 barcode PNG.".into(),
+                    expected_output: None,
+                },
+            )
+        };
         FunctionMetadata {
-            description: "Generate a barcode PNG (BLOB) for the given text and format".into(),
+            description: description.into(),
             return_type: Some(DataType::Binary),
+            examples: vec![example],
             ..Default::default()
         }
     }

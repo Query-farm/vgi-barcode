@@ -35,6 +35,15 @@ impl TableFunction for DecodeBarcodes {
         FunctionMetadata {
             description:
                 "Decode ALL barcodes/QR codes in an image BLOB into (seq, format, text) rows".into(),
+            tags: vec![(
+                "vgi.columns_md".into(),
+                "| column | type | description |\n\
+                 |---|---|---|\n\
+                 | `seq` | BIGINT | Zero-based index of the symbol within the image. |\n\
+                 | `format` | VARCHAR | Detected symbology, e.g. `QR_CODE`, `EAN_13`, `CODE_128`. |\n\
+                 | `text` | VARCHAR | Decoded payload text of the symbol. |"
+                    .into(),
+            )],
             ..Default::default()
         }
     }

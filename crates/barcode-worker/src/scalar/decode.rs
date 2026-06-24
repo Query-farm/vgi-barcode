@@ -10,7 +10,10 @@ use std::sync::Arc;
 use arrow_array::builder::StringBuilder;
 use arrow_array::{ArrayRef, RecordBatch};
 use arrow_schema::DataType;
-use vgi::{ArgSpec, BindParams, BindResponse, FunctionMetadata, ProcessParams, ScalarFunction};
+use vgi::{
+    ArgSpec, BindParams, BindResponse, FunctionExample, FunctionMetadata, ProcessParams,
+    ScalarFunction,
+};
 use vgi_rpc::{Result, RpcError};
 
 use crate::arrow_io::blob_bytes;
@@ -27,6 +30,8 @@ pub struct DecodeBarcode {
     field: Field,
     name: &'static str,
     desc: &'static str,
+    example_sql: &'static str,
+    example_desc: &'static str,
 }
 
 impl DecodeBarcode {
@@ -35,6 +40,11 @@ impl DecodeBarcode {
             field: Field::Text,
             name: "decode_barcode",
             desc: "Decode the first barcode/QR in an image BLOB to its text (NULL if none)",
+            example_sql:
+                "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world'));",
+            example_desc:
+                "Decode the text of the first barcode/QR found in an image BLOB (here a freshly \
+                 generated QR).",
         }
     }
 
@@ -44,6 +54,10 @@ impl DecodeBarcode {
             name: "barcode_format",
             desc:
                 "Format name of the first barcode/QR in an image BLOB, e.g. QR_CODE (NULL if none)",
+            example_sql:
+                "SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world'));",
+            example_desc:
+                "Identify the symbology of the first barcode/QR in an image BLOB (e.g. 'QR_CODE').",
         }
     }
 }
@@ -57,6 +71,11 @@ impl ScalarFunction for DecodeBarcode {
         FunctionMetadata {
             description: self.desc.into(),
             return_type: Some(DataType::Utf8),
+            examples: vec![FunctionExample {
+                sql: self.example_sql.into(),
+                description: self.example_desc.into(),
+                expected_output: None,
+            }],
             ..Default::default()
         }
     }

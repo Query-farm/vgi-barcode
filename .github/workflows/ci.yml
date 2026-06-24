@@ -130,3 +130,29 @@ jobs:
         run: ci/run-integration.sh
         env:
           TRANSPORT: ${{ matrix.transport }}
+
+  # Metadata-quality gate: build the worker, then run the signed vgi community
+  # `vgi-lint` linter against the catalog/schema/function metadata it advertises.
+  # Kept a separate, visible job so a metadata regression fails on its own.
+  metadata-quality:
+    name: metadata quality (vgi-lint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Setup sccache
+        uses: mozilla-actions/sccache-action@v0.0.9
+
+      - name: Build worker (release)
+        run: cargo build --release --bin barcode-worker
+
+      - name: vgi-lint
+        uses: Query-farm/vgi-lint-check@v1
+        with:
+          location: "${{ github.workspace }}/target/release/barcode-worker"
+          fail-on: info
