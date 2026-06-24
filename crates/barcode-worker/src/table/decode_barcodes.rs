@@ -16,6 +16,22 @@ use vgi_rpc::{OutputCollector, Result, RpcError};
 
 use crate::barcoding::{self, Decoded};
 
+/// Guaranteed-runnable, catalog-qualified examples (VGI509). Each `sql` is
+/// self-contained and re-runnable against an attached `barcode` worker. The
+/// image BLOB is constant-folded (a freshly generated QR), since table functions
+/// take constant arguments rather than row columns. We omit `expected_result`
+/// deliberately — the linter only needs each query to execute cleanly.
+const EXECUTABLE_EXAMPLES: &str = r#"[
+  {
+    "description": "Decode every symbol in a freshly generated QR image.",
+    "sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"
+  },
+  {
+    "description": "Decode every symbol in a generated EAN-13 barcode image.",
+    "sql": "SELECT format, text FROM barcode.main.decode_barcodes(barcode.main.generate_barcode('5901234123457', 'EAN_13'))"
+  }
+]"#;
+
 pub struct DecodeBarcodes;
 
 fn output_schema() -> SchemaRef {
@@ -32,18 +48,31 @@ impl TableFunction for DecodeBarcodes {
     }
 
     fn metadata(&self) -> FunctionMetadata {
+        let mut tags = crate::meta::object_tags(
+            "Decode All Barcodes In Image",
+            "Decode every barcode and QR code found in a single image BLOB, returning one row per \
+             symbol with its zero-based sequence index, detected format, and decoded text. An \
+             undecodable or hostile blob, or a valid image with no symbols, yields zero rows. The \
+             image is a bind-time constant argument.",
+            "Decode **all** barcodes/QR codes in an image BLOB into `(seq, format, text)` rows.",
+            "decode all barcodes, multiple barcodes, fan out, every barcode, decode_barcodes, \
+             scan image, all symbols, table function",
+            "table/decode_barcodes.rs",
+        );
+        tags.push((
+            "vgi.columns_md".into(),
+            "| column | type | description |\n\
+             |---|---|---|\n\
+             | `seq` | BIGINT | Zero-based index of the symbol within the image. |\n\
+             | `format` | VARCHAR | Detected symbology, e.g. `QR_CODE`, `EAN_13`, `CODE_128`. |\n\
+             | `text` | VARCHAR | Decoded payload text of the symbol. |"
+                .into(),
+        ));
+        tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
         FunctionMetadata {
             description:
                 "Decode ALL barcodes/QR codes in an image BLOB into (seq, format, text) rows".into(),
-            tags: vec![(
-                "vgi.columns_md".into(),
-                "| column | type | description |\n\
-                 |---|---|---|\n\
-                 | `seq` | BIGINT | Zero-based index of the symbol within the image. |\n\
-                 | `format` | VARCHAR | Detected symbology, e.g. `QR_CODE`, `EAN_13`, `CODE_128`. |\n\
-                 | `text` | VARCHAR | Decoded payload text of the symbol. |"
-                    .into(),
-            )],
+            tags,
             ..Default::default()
         }
     }

@@ -20,6 +20,7 @@
 
 mod arrow_io;
 mod barcoding;
+mod meta;
 mod scalar;
 mod table;
 
@@ -40,6 +41,16 @@ fn catalog_metadata(name: &str) -> CatalogModel {
         name: name.to_string(),
         comment: Some("Barcode and QR-code decoding and generation over Apache Arrow.".to_string()),
         tags: vec![
+            (
+                "vgi.title".to_string(),
+                "Barcode & QR-Code Decode and Generation".to_string(),
+            ),
+            (
+                "vgi.keywords".to_string(),
+                "barcode, qr code, qr, decode, scan, generate, encode, ean, upc, code 128, \
+                 code 39, data matrix, pdf417, aztec, symbology, zxing, rxing, png, image"
+                    .to_string(),
+            ),
             (
                 "vgi.description_llm".to_string(),
                 "Decode barcodes and QR codes out of image BLOBs (PNG/JPEG/GIF/BMP/WebP) and \
@@ -79,6 +90,22 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             name: "main".to_string(),
             comment: Some("Barcode / QR-code decode and generation functions.".to_string()),
             tags: vec![
+                ("vgi.title".to_string(), "Barcode — main".to_string()),
+                (
+                    "vgi.keywords".to_string(),
+                    "barcode, qr code, decode_barcode, barcode_format, generate_qr, \
+                     generate_barcode, decode_barcodes, barcode_formats, scan, encode, symbology"
+                        .to_string(),
+                ),
+                // VGI123 classifying tags (BARE keys: domain/category/topic) for faceting.
+                ("domain".to_string(), "imaging".to_string()),
+                ("category".to_string(), "barcode".to_string()),
+                ("topic".to_string(), "decode-and-generate".to_string()),
+                (
+                    "vgi.source_url".to_string(),
+                    "https://github.com/Query-farm/vgi-barcode/blob/main/crates/barcode-worker/src/main.rs"
+                        .to_string(),
+                ),
                 (
                     "vgi.description_llm".to_string(),
                     "Barcode / QR-code decode and generation functions: read the text and format \
@@ -89,6 +116,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 (
                     "vgi.description_md".to_string(),
                     "Barcode / QR-code decode and generation functions over Apache Arrow."
+                        .to_string(),
+                ),
+                // VGI506 representative example queries for the schema.
+                (
+                    "vgi.example_queries".to_string(),
+                    "SELECT barcode.main.barcode_version();\n\
+                     SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world'));\n\
+                     SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world'));\n\
+                     SELECT barcode.main.generate_qr('https://query.farm');\n\
+                     SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13');\n\
+                     SELECT * FROM barcode.main.barcode_formats();\n\
+                     SELECT * FROM barcode.main.decode_barcodes(barcode.main.generate_qr('multi'));"
                         .to_string(),
                 ),
             ],

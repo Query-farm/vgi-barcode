@@ -103,6 +103,16 @@ impl ScalarFunction for GenerateQr {
             description: description.into(),
             return_type: Some(DataType::Binary),
             examples: vec![example],
+            tags: crate::meta::object_tags(
+                "Generate QR Code Image",
+                "Encode the given text as a QR code and return it as a PNG image BLOB. Optionally \
+                 takes a square side length in pixels (default 256). Use for producing scannable \
+                 QR codes from URLs, payloads, or arbitrary text in SQL.",
+                "Generate a **QR-code PNG** (BLOB) from text, optionally at a chosen pixel size.",
+                "generate qr, qr code, make qr, encode qr, qr png, create barcode image, \
+                 generate_qr, scannable code",
+                "scalar/generate.rs",
+            ),
             ..Default::default()
         }
     }
@@ -203,6 +213,18 @@ impl ScalarFunction for GenerateBarcode {
             description: description.into(),
             return_type: Some(DataType::Binary),
             examples: vec![example],
+            tags: crate::meta::object_tags(
+                "Generate Barcode Image",
+                "Encode the given text in a named barcode symbology (e.g. EAN_13, UPC_A, CODE_128, \
+                 CODE_39, ITF, CODABAR, DATA_MATRIX, PDF_417, AZTEC, QR_CODE) and return it as a \
+                 PNG image BLOB. Optionally takes an image width in pixels (default 256). Use for \
+                 producing scannable product/barcode images in SQL.",
+                "Generate a **barcode PNG** (BLOB) from text in a named symbology, optionally at a \
+                 chosen pixel width.",
+                "generate barcode, make barcode, encode barcode, barcode png, ean, upc, code 128, \
+                 code 39, symbology, generate_barcode, create barcode image",
+                "scalar/generate.rs",
+            ),
             ..Default::default()
         }
     }

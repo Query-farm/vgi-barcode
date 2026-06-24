@@ -26,6 +26,14 @@ impl ScalarFunction for BarcodeVersion {
                 description: "Return the running barcode worker's version string.".into(),
                 expected_output: None,
             }],
+            tags: crate::meta::object_tags(
+                "Barcode Worker Version",
+                "Return the semantic version string of the running barcode worker binary. Useful \
+                 for diagnostics and confirming which build is attached.",
+                "Return the barcode worker version string, e.g. `barcode_version()` → '0.1.0'.",
+                "version, build version, barcode_version, diagnostics, worker version, semver",
+                "scalar/version.rs",
+            ),
             ..Default::default()
         }
     }
