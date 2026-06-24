@@ -4,7 +4,9 @@
 
 <p align="center"><em>A <a href="https://query.farm">Query.Farm</a> VGI worker for DuckDB.</em></p>
 
-# vgi-barcode
+# Decode & Generate QR Codes and Barcodes in DuckDB
+
+> **vgi-barcode** · a [Query.Farm](https://query.farm) VGI worker · powered by rxing
 
 A [VGI](https://query.farm) worker (Rust, a compiled binary) that brings
 **barcode and QR-code decoding and generation** to DuckDB / SQL over Apache
