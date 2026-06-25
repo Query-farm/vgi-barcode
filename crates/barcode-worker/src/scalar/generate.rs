@@ -109,21 +109,33 @@ impl ScalarFunction for GenerateQr {
                  takes a square side length in pixels (default 256). Use for producing scannable \
                  QR codes from URLs, payloads, or arbitrary text in SQL.",
                 "Generate a **QR-code PNG** (BLOB) from text, optionally at a chosen pixel size.",
-                "generate qr, qr code, make qr, encode qr, qr png, create barcode image, \
-                 generate_qr, scannable code",
-                "scalar/generate.rs",
+                &[
+                    "generate qr",
+                    "qr code",
+                    "make qr",
+                    "encode qr",
+                    "qr png",
+                    "create barcode image",
+                    "generate_qr",
+                    "scannable code",
+                ],
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        let mut specs = vec![ArgSpec::any_column("text", 0, "Text to encode (VARCHAR)")];
+        let mut specs = vec![ArgSpec::column(
+            "text",
+            0,
+            "varchar",
+            "Payload to encode into the QR code (URL, identifier, or arbitrary text)",
+        )];
         if self.with_size {
             specs.push(const_any(
                 "size_px",
                 1,
-                "Square side length in pixels (default 256)",
+                "Square side length in pixels of the output image (default 256)",
             ));
         }
         specs
@@ -221,9 +233,19 @@ impl ScalarFunction for GenerateBarcode {
                  producing scannable product/barcode images in SQL.",
                 "Generate a **barcode PNG** (BLOB) from text in a named symbology, optionally at a \
                  chosen pixel width.",
-                "generate barcode, make barcode, encode barcode, barcode png, ean, upc, code 128, \
-                 code 39, symbology, generate_barcode, create barcode image",
-                "scalar/generate.rs",
+                &[
+                    "generate barcode",
+                    "make barcode",
+                    "encode barcode",
+                    "barcode png",
+                    "ean",
+                    "upc",
+                    "code 128",
+                    "code 39",
+                    "symbology",
+                    "generate_barcode",
+                    "create barcode image",
+                ],
             ),
             ..Default::default()
         }
@@ -231,18 +253,24 @@ impl ScalarFunction for GenerateBarcode {
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
         let mut specs = vec![
-            ArgSpec::any_column("text", 0, "Text to encode (VARCHAR)"),
+            ArgSpec::column(
+                "text",
+                0,
+                "varchar",
+                "Payload to encode into the barcode (must be valid for the chosen symbology, \
+                 e.g. 13 digits for EAN_13)",
+            ),
             const_any(
                 "format",
                 1,
-                "Barcode format, e.g. QR_CODE, EAN_13, CODE_128",
+                "Canonical symbology name to encode in, e.g. QR_CODE, EAN_13, CODE_128",
             ),
         ];
         if self.with_size {
             specs.push(const_any(
                 "size_px",
                 2,
-                "Image width in pixels (default 256)",
+                "Width in pixels of the output image (default 256)",
             ));
         }
         specs

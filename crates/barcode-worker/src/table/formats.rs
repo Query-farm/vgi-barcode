@@ -1,6 +1,7 @@
 //! `barcode_formats() -> (format VARCHAR)` — the list of supported barcode
 //! format strings, for discovery.
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use arrow_array::builder::StringBuilder;
@@ -14,12 +15,30 @@ use crate::barcoding;
 
 pub struct BarcodeFormats;
 
-fn output_schema() -> SchemaRef {
+/// The single-column `(format VARCHAR)` schema produced by `barcode_formats`.
+/// Exposed so `main.rs` can also surface it as a zero-argument catalog *table*
+/// (VGI311) — `SELECT * FROM barcode.main.barcode_formats` — backed by this same
+/// table function.
+/// Per-column comment carried in the Arrow field metadata (DuckDB surfaces it as
+/// the column COMMENT, which the metadata linter reads).
+const FORMAT_COLUMN_COMMENT: &str =
+    "A supported barcode/QR symbology name in canonical ZXing form, e.g. QR_CODE, EAN_13, \
+     CODE_128 — valid as the `format` argument to generate_barcode.";
+
+/// Number of rows `barcode_formats` produces — the count of supported
+/// symbologies. Used as the catalog table's fixed cardinality estimate.
+pub fn supported_format_count() -> usize {
+    barcoding::supported_formats().len()
+}
+
+pub fn output_schema() -> SchemaRef {
+    let comment = HashMap::from([("comment".to_string(), FORMAT_COLUMN_COMMENT.to_string())]);
     Arc::new(Schema::new(vec![Field::new(
         "format",
         DataType::Utf8,
         false,
-    )]))
+    )
+    .with_metadata(comment)]))
 }
 
 impl TableFunction for BarcodeFormats {
@@ -34,9 +53,16 @@ impl TableFunction for BarcodeFormats {
              format. Use it to discover which format strings are valid inputs to generate_barcode \
              and which symbologies decode_barcode/decode_barcodes can recognize.",
             "List the supported barcode/QR **format names**, one per row. Column: `format`.",
-            "supported formats, list formats, barcode formats, symbologies, available formats, \
-             barcode_formats, discovery, which barcodes",
-            "table/formats.rs",
+            &[
+                "supported formats",
+                "list formats",
+                "barcode formats",
+                "symbologies",
+                "available formats",
+                "barcode_formats",
+                "discovery",
+                "which barcodes",
+            ],
         );
         tags.push((
             "vgi.result_columns_md".into(),

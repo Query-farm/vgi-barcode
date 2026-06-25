@@ -24,7 +24,9 @@ mod meta;
 mod scalar;
 mod table;
 
-use vgi::catalog::{CatSchema, CatalogModel};
+use std::sync::Arc;
+
+use vgi::catalog::{CatSchema, CatTable, CatalogModel};
 use vgi::Worker;
 
 /// Worker version string, surfaced by `barcode_version()`.
@@ -47,9 +49,27 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.keywords".to_string(),
-                "barcode, qr code, qr, decode, scan, generate, encode, ean, upc, code 128, \
-                 code 39, data matrix, pdf417, aztec, symbology, zxing, rxing, png, image"
-                    .to_string(),
+                meta::keywords_json(&[
+                    "barcode",
+                    "qr code",
+                    "qr",
+                    "decode",
+                    "scan",
+                    "generate",
+                    "encode",
+                    "ean",
+                    "upc",
+                    "code 128",
+                    "code 39",
+                    "data matrix",
+                    "pdf417",
+                    "aztec",
+                    "symbology",
+                    "zxing",
+                    "rxing",
+                    "png",
+                    "image",
+                ]),
             ),
             (
                 "vgi.doc_llm".to_string(),
@@ -103,19 +123,24 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ("vgi.title".to_string(), "Barcode — main".to_string()),
                 (
                     "vgi.keywords".to_string(),
-                    "barcode, qr code, decode_barcode, barcode_format, generate_qr, \
-                     generate_barcode, decode_barcodes, barcode_formats, scan, encode, symbology"
-                        .to_string(),
+                    meta::keywords_json(&[
+                        "barcode",
+                        "qr code",
+                        "decode_barcode",
+                        "barcode_format",
+                        "generate_qr",
+                        "generate_barcode",
+                        "decode_barcodes",
+                        "barcode_formats",
+                        "scan",
+                        "encode",
+                        "symbology",
+                    ]),
                 ),
                 // VGI123 classifying tags (BARE keys: domain/category/topic) for faceting.
                 ("domain".to_string(), "imaging".to_string()),
                 ("category".to_string(), "barcode".to_string()),
                 ("topic".to_string(), "decode-and-generate".to_string()),
-                (
-                    "vgi.source_url".to_string(),
-                    "https://github.com/Query-farm/vgi-barcode/blob/main/crates/barcode-worker/src/main.rs"
-                        .to_string(),
-                ),
                 (
                     "vgi.doc_llm".to_string(),
                     "Barcode / QR-code decode and generation functions: read the text and format \
@@ -151,10 +176,82 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ],
             views: Vec::new(),
             macros: Vec::new(),
-            tables: Vec::new(),
+            // Expose the parameterless `barcode_formats` table function as a
+            // catalog TABLE so `SELECT * FROM barcode.main.barcode_formats`
+            // works (VGI311). `with_function` stores the backing function and
+            // `Worker::set_catalog` auto-registers its scan function, so no
+            // separate `register_table` call is needed for it.
+            tables: vec![barcode_formats_table()],
         }],
         ..Default::default()
     }
+}
+
+/// The catalog TABLE wrapping the parameterless `barcode_formats` table function
+/// so `SELECT * FROM barcode.main.barcode_formats` works (VGI311). It carries the
+/// full per-object metadata the strict linter expects (title/doc_llm/doc_md/
+/// keywords/classifying tag/example queries), a documented column, and a single-
+/// column primary key (`format`), since each symbology name appears once.
+fn barcode_formats_table() -> CatTable {
+    let mut t = CatTable::with_function(
+        "barcode_formats",
+        table::formats::output_schema(),
+        Arc::new(table::formats::BarcodeFormats),
+        Some("Supported barcode/QR symbology names, one per row.".to_string()),
+        // ~20 ZXing symbologies — a small, fixed list.
+        Some(table::formats::supported_format_count() as i64),
+    );
+    t.tags = vec![
+        (
+            "vgi.title".to_string(),
+            "Supported Barcode Formats".to_string(),
+        ),
+        (
+            "vgi.doc_llm".to_string(),
+            "The catalog of barcode/QR symbology names this worker can generate or decode, one row \
+             per format. Query it to discover which strings are valid for the `format` argument of \
+             generate_barcode and which symbologies decode_barcode / decode_barcodes can recognize."
+                .to_string(),
+        ),
+        (
+            "vgi.doc_md".to_string(),
+            "# barcode_formats\n\nThe supported barcode/QR **symbology names**, one per row in the \
+             `format` column (canonical ZXing form, e.g. `QR_CODE`, `EAN_13`, `CODE_128`, \
+             `DATA_MATRIX`, `PDF_417`, `AZTEC`). Use these strings as the `format` argument to \
+             `generate_barcode`."
+                .to_string(),
+        ),
+        (
+            "vgi.keywords".to_string(),
+            meta::keywords_json(&[
+                "supported formats",
+                "list formats",
+                "barcode formats",
+                "symbologies",
+                "available formats",
+                "barcode_formats",
+                "discovery",
+                "which barcodes",
+            ]),
+        ),
+        // VGI123 classifying tag.
+        ("category".to_string(), "barcode".to_string()),
+        (
+            "vgi.example_queries".to_string(),
+            r#"[
+  {"description": "List every supported barcode/QR symbology name.", "sql": "SELECT * FROM barcode.main.barcode_formats"},
+  {"description": "List the supported symbology names alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"}
+]"#
+            .to_string(),
+        ),
+    ];
+    // `format` (column 0) uniquely identifies a row (each symbology name appears
+    // once). `primary_key` is a list of key column-index groups.
+    t.primary_key = vec![vec![0]];
+    // A primary key column is implicitly NOT NULL; declare it so DuckDB and the
+    // linter agree the key column is non-nullable.
+    t.not_null = vec![0];
+    t
 }
 
 fn main() {

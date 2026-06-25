@@ -33,7 +33,7 @@ pub struct DecodeBarcode {
     example_sql: &'static str,
     example_desc: &'static str,
     title: &'static str,
-    keywords: &'static str,
+    keywords: &'static [&'static str],
     description_llm: &'static str,
     description_md: &'static str,
 }
@@ -50,9 +50,16 @@ impl DecodeBarcode {
                 "Decode the text of the first barcode/QR found in an image BLOB (here a freshly \
                  generated QR).",
             title: "Decode Barcode Text",
-            keywords:
-                "decode, read barcode, scan barcode, qr decode, barcode text, decode_barcode, \
-                 read qr, extract payload",
+            keywords: &[
+                "decode",
+                "read barcode",
+                "scan barcode",
+                "qr decode",
+                "barcode text",
+                "decode_barcode",
+                "read qr",
+                "extract payload",
+            ],
             description_llm:
                 "Decode the first barcode or QR code found in an image BLOB (PNG/JPEG/GIF/BMP/WebP) \
                  and return its decoded text payload. Returns NULL when the image contains no \
@@ -74,8 +81,16 @@ impl DecodeBarcode {
             example_desc:
                 "Identify the symbology of the first barcode/QR in an image BLOB (e.g. 'QR_CODE').",
             title: "Identify Barcode Format",
-            keywords: "barcode format, symbology, detect format, qr or barcode, barcode_format, \
-                 format name, identify barcode, ean upc code128",
+            keywords: &[
+                "barcode format",
+                "symbology",
+                "detect format",
+                "qr or barcode",
+                "barcode_format",
+                "format name",
+                "identify barcode",
+                "ean upc code128",
+            ],
             description_llm:
                 "Identify the symbology (format) of the first barcode or QR code found in an image \
                  BLOB and return its canonical ZXing name, e.g. QR_CODE, EAN_13, CODE_128. Returns \
@@ -106,14 +121,18 @@ impl ScalarFunction for DecodeBarcode {
                 self.description_llm,
                 self.description_md,
                 self.keywords,
-                "scalar/decode.rs",
             ),
             ..Default::default()
         }
     }
 
     fn argument_specs(&self) -> Vec<ArgSpec> {
-        vec![ArgSpec::any_column("blob", 0, "Image bytes (BLOB)")]
+        vec![ArgSpec::column(
+            "blob",
+            0,
+            "binary",
+            "Raw bytes of an image (PNG/JPEG/GIF/BMP/WebP) to scan for a barcode/QR code",
+        )]
     }
 
     fn on_bind(&self, _params: &BindParams) -> Result<BindResponse> {

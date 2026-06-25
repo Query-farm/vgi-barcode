@@ -55,9 +55,16 @@ impl TableFunction for DecodeBarcodes {
              undecodable or hostile blob, or a valid image with no symbols, yields zero rows. The \
              image is a bind-time constant argument.",
             "Decode **all** barcodes/QR codes in an image BLOB into `(seq, format, text)` rows.",
-            "decode all barcodes, multiple barcodes, fan out, every barcode, decode_barcodes, \
-             scan image, all symbols, table function",
-            "table/decode_barcodes.rs",
+            &[
+                "decode all barcodes",
+                "multiple barcodes",
+                "fan out",
+                "every barcode",
+                "decode_barcodes",
+                "scan image",
+                "all symbols",
+                "table function",
+            ],
         );
         tags.push((
             "vgi.result_columns_md".into(),
@@ -82,7 +89,7 @@ impl TableFunction for DecodeBarcodes {
             "blob",
             0,
             "binary",
-            "Image bytes (BLOB)",
+            "Raw bytes of a single image to scan for every barcode/QR code it contains",
         )]
     }
 

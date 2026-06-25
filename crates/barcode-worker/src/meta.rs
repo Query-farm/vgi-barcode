@@ -5,37 +5,50 @@
 //! - `vgi.title` (VGI124)      — human-friendly display name
 //! - `vgi.doc_llm` (VGI112)    — Markdown narrative aimed at LLMs/agents
 //! - `vgi.doc_md` (VGI113)     — Markdown narrative for human docs
-//! - `vgi.keywords` (VGI126)   — comma-separated search terms/synonyms
-//! - `vgi.source_url` (VGI128) — link to the implementing source file
+//! - `vgi.keywords` (VGI126)   — JSON array of search terms/synonyms (VGI138)
 //!
-//! `source_url(file)` builds the canonical GitHub blob URL for a source file so
-//! every object points at exactly where it is implemented.
+//! Per-object `vgi.source_url` is intentionally NOT emitted here: provenance is
+//! advertised once at the catalog level (`CatalogModel.source_url`), and the
+//! linter (VGI139) flags redundant per-object source URLs.
 
-/// Base GitHub blob URL for source files in this repo (pinned to `main`).
-const SOURCE_BASE: &str =
-    "https://github.com/Query-farm/vgi-barcode/blob/main/crates/barcode-worker/src";
-
-/// Build the implementation `vgi.source_url` for a file under `barcode-worker/src`,
-/// e.g. `source_url("scalar/decode.rs")`.
-pub fn source_url(relative_path: &str) -> String {
-    format!("{SOURCE_BASE}/{relative_path}")
+/// Serialize a list of keyword strings as a JSON array, e.g.
+/// `["decode","scan"]`. `vgi.keywords` MUST be a JSON array of strings (VGI138),
+/// not a comma-separated string, so the catalog exposes a structured value.
+pub fn keywords_json(keywords: &[&str]) -> String {
+    let mut s = String::from("[");
+    for (i, kw) in keywords.iter().enumerate() {
+        if i > 0 {
+            s.push(',');
+        }
+        // Keywords are plain words/phrases; escape the JSON-significant chars
+        // so the value is always valid JSON.
+        s.push('"');
+        for ch in kw.chars() {
+            match ch {
+                '"' => s.push_str("\\\""),
+                '\\' => s.push_str("\\\\"),
+                _ => s.push(ch),
+            }
+        }
+        s.push('"');
+    }
+    s.push(']');
+    s
 }
 
-/// Build the five standard per-object discovery/description tags.
+/// Build the four standard per-object discovery/description tags.
 ///
-/// `relative_path` is the implementing file relative to `barcode-worker/src`.
+/// `keywords` is serialized as a JSON array of strings for `vgi.keywords`.
 pub fn object_tags(
     title: &str,
     doc_llm: &str,
     doc_md: &str,
-    keywords: &str,
-    relative_path: &str,
+    keywords: &[&str],
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), doc_llm.to_string()),
         ("vgi.doc_md".to_string(), doc_md.to_string()),
-        ("vgi.keywords".to_string(), keywords.to_string()),
-        ("vgi.source_url".to_string(), source_url(relative_path)),
+        ("vgi.keywords".to_string(), keywords_json(keywords)),
     ]
 }
