@@ -88,6 +88,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.doc_md".to_string(),
                 "# Barcode & QR-Code Decoding and Generation for DuckDB\n\n\
+                 ![ZXing logo](https://raw.githubusercontent.com/wiki/zxing/zxing/zxing-logo.png)\n\n\
                  Read and write barcodes and QR codes directly in SQL: decode QR, EAN, UPC, \
                  Code 128, Code 39, Data Matrix, PDF417, Aztec and more out of image BLOBs, and \
                  generate scannable barcode PNGs from text — all over Apache Arrow, with no \
