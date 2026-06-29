@@ -87,17 +87,42 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             (
                 "vgi.doc_md".to_string(),
-                "# barcode\n\nBarcode and QR-code **decode and generation** for DuckDB, over \
-                 Apache Arrow IPC. The engine is the maintained Rust port of ZXing \
-                 ([`rxing`](https://crates.io/crates/rxing)).\n\n## What you can do\n\n- **Read** \
-                 the text and format of the first symbol in an image BLOB \
-                 (`decode_barcode`, `barcode_format`).\n- **Fan out** one image into every symbol \
-                 it contains, one row each (`decode_barcodes`).\n- **Generate** a QR code or a \
-                 named symbology as a PNG BLOB (`generate_qr`, `generate_barcode`).\n- **Discover** \
-                 the supported symbologies (`barcode_formats`) and the worker version \
-                 (`barcode_version`).\n\n## Notes\n\nSupported input rasters: PNG, JPEG, GIF, BMP, \
-                 WebP. Decoding never crashes on untrusted bytes — a bad, empty, or oversized \
-                 image simply yields NULL (scalars) or no rows (tables)."
+                "# Barcode & QR-Code Decoding and Generation for DuckDB\n\n\
+                 Read and write barcodes and QR codes directly in SQL: decode QR, EAN, UPC, \
+                 Code 128, Code 39, Data Matrix, PDF417, Aztec and more out of image BLOBs, and \
+                 generate scannable barcode PNGs from text — all over Apache Arrow, with no \
+                 external service.\n\n\
+                 ## What it does and who it's for\n\n\
+                 The `barcode` extension turns DuckDB into a complete barcode and QR-code toolkit. \
+                 Data engineers, retail and logistics teams, and anyone holding a column of \
+                 product photos or scanned documents can pull the encoded text and symbology out \
+                 of images, or mint fresh barcode/QR images for labels, tickets, and links — \
+                 entirely in SQL. Decoding is hardened against hostile or oversized input: a \
+                 corrupt, empty, or giant image yields `NULL` (scalars) or zero rows (tables) \
+                 instead of crashing the worker, so it is safe to run across untrusted data at \
+                 scale.\n\n\
+                 ## How it works\n\n\
+                 Decoding and encoding are powered by \
+                 [`rxing`](https://github.com/rxing-core/rxing), the maintained Rust port of the \
+                 venerable [ZXing](https://github.com/zxing/zxing) (\"zebra crossing\") library. \
+                 Input rasters (PNG, JPEG, GIF, BMP, WebP) are converted to grayscale and scanned \
+                 for one or many symbols; text is encoded into a bit matrix and rendered to a PNG \
+                 BLOB. Full API documentation for the underlying library lives at \
+                 [docs.rs/rxing](https://docs.rs/rxing). The worker streams everything over Apache \
+                 Arrow IPC, so results flow back into DuckDB as native columns without \
+                 intermediate files.\n\n\
+                 ## SQL use cases and function surface\n\n\
+                 Use the scalar `decode_barcode(image)` to read the text of the first symbol in an \
+                 image column, and `barcode_format(image)` to get its symbology name. Fan a single \
+                 image that contains multiple codes into one row per symbol with the \
+                 `decode_barcodes(image)` table function (sequence, format, text). Generate codes \
+                 with `generate_qr(text[, size_px])` and `generate_barcode(text, format[, \
+                 size_px])`, both returning a PNG BLOB you can write to files or embed. Discover \
+                 every supported symbology with the `barcode_formats()` table function, and check \
+                 the engine build with `barcode_version()`. For example, \
+                 `SELECT decode_barcode(generate_qr('https://query.farm'))` round-trips text \
+                 through a QR code, while `SELECT generate_barcode('5901234123457', 'EAN_13')` \
+                 produces a retail EAN-13 label."
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
