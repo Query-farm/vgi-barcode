@@ -103,6 +103,7 @@ pub mod test_support {
             execution_id: Vec::new(),
             init_opaque_data: Vec::new(),
             arguments,
+            copy_from: None,
             settings: Default::default(),
             secrets: Default::default(),
             auth_principal: None,
