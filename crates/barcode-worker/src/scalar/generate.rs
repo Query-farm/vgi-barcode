@@ -119,6 +119,7 @@ impl ScalarFunction for GenerateQr {
                     "generate_qr",
                     "scannable code",
                 ],
+                "generate",
             ),
             ..Default::default()
         }
@@ -246,6 +247,7 @@ impl ScalarFunction for GenerateBarcode {
                     "generate_barcode",
                     "create barcode image",
                 ],
+                "generate",
             ),
             ..Default::default()
         }

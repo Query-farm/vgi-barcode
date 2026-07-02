@@ -39,6 +39,7 @@ impl ScalarFunction for BarcodeVersion {
                     "worker version",
                     "semver",
                 ],
+                "reference",
             ),
             ..Default::default()
         }

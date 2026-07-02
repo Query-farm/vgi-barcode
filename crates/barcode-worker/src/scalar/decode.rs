@@ -121,6 +121,7 @@ impl ScalarFunction for DecodeBarcode {
                 self.description_llm,
                 self.description_md,
                 self.keywords,
+                "decode",
             ),
             ..Default::default()
         }

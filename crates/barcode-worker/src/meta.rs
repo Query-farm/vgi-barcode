@@ -36,19 +36,27 @@ pub fn keywords_json(keywords: &[&str]) -> String {
     s
 }
 
-/// Build the four standard per-object discovery/description tags.
+/// Build the standard per-object discovery/description tags.
 ///
 /// `keywords` is serialized as a JSON array of strings for `vgi.keywords`.
+/// `category` names one of the schema's `vgi.categories` (VGI413) — it groups the
+/// object under a navigation section; `domain` is emitted as a bare classifying
+/// tag (VGI123) so every object is findable by facet.
 pub fn object_tags(
     title: &str,
     doc_llm: &str,
     doc_md: &str,
     keywords: &[&str],
+    category: &str,
 ) -> Vec<(String, String)> {
     vec![
         ("vgi.title".to_string(), title.to_string()),
         ("vgi.doc_llm".to_string(), doc_llm.to_string()),
         ("vgi.doc_md".to_string(), doc_md.to_string()),
         ("vgi.keywords".to_string(), keywords_json(keywords)),
+        // VGI413: place this object in one of the schema's declared categories.
+        ("vgi.category".to_string(), category.to_string()),
+        // VGI123: a bare classifying tag so the object is findable by facet.
+        ("domain".to_string(), "imaging".to_string()),
     ]
 }

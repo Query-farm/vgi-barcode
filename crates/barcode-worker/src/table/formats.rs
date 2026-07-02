@@ -63,6 +63,7 @@ impl TableFunction for BarcodeFormats {
                 "discovery",
                 "which barcodes",
             ],
+            "reference",
         );
         tags.push((
             "vgi.result_columns_md".into(),

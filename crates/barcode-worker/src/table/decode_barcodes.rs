@@ -65,6 +65,7 @@ impl TableFunction for DecodeBarcodes {
                 "all symbols",
                 "table function",
             ],
+            "decode",
         );
         tags.push((
             "vgi.result_columns_md".into(),

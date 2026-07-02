@@ -112,18 +112,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  [docs.rs/rxing](https://docs.rs/rxing). The worker streams everything over Apache \
                  Arrow IPC, so results flow back into DuckDB as native columns without \
                  intermediate files.\n\n\
-                 ## SQL use cases and function surface\n\n\
-                 Use the scalar `decode_barcode(image)` to read the text of the first symbol in an \
-                 image column, and `barcode_format(image)` to get its symbology name. Fan a single \
-                 image that contains multiple codes into one row per symbol with the \
-                 `decode_barcodes(image)` table function (sequence, format, text). Generate codes \
-                 with `generate_qr(text[, size_px])` and `generate_barcode(text, format[, \
-                 size_px])`, both returning a PNG BLOB you can write to files or embed. Discover \
-                 every supported symbology with the `barcode_formats()` table function, and check \
-                 the engine build with `barcode_version()`. For example, \
-                 `SELECT decode_barcode(generate_qr('https://query.farm'))` round-trips text \
-                 through a QR code, while `SELECT generate_barcode('5901234123457', 'EAN_13')` \
-                 produces a retail EAN-13 label."
+                 ## When to reach for it\n\n\
+                 Reach for this worker to read product or QR codes out of a column of images, to \
+                 fan a single image that holds several codes into one row per symbol, or to \
+                 produce scannable barcode and QR PNGs for labels, tickets, and links — without \
+                 leaving SQL or standing up an external service. Text encoding and image decoding \
+                 round-trip cleanly, so you can both mint and re-read codes in one query. List the \
+                 schema to discover the exact functions and their signatures; a quick round-trip \
+                 looks like:\n\n\
+                 ```sql\n\
+                 SELECT decode_barcode(generate_qr('https://query.farm'));\n\
+                 SELECT generate_barcode('5901234123457', 'EAN_13');\n\
+                 ```"
                     .to_string(),
             ),
             ("vgi.author".to_string(), "Query.Farm".to_string()),
@@ -139,6 +139,23 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.support_policy_url".to_string(),
                 "https://github.com/Query-farm/vgi-barcode/blob/main/README.md".to_string(),
+            ),
+            // VGI152: an analyst-task suite so `vgi-lint simulate` can measure how
+            // well an agent actually drives this worker. Each task is a natural
+            // prompt plus the canonical `reference_sql` that answers it. Every task
+            // is deterministic and self-contained (it generates its own image), so
+            // it needs no external fixtures.
+            (
+                "vgi.agent_test_tasks".to_string(),
+                r#"[
+  {"name": "worker_version", "prompt": "Which version of the barcode worker is currently attached? Return the single version string in a column named worker_version.", "reference_sql": "SELECT barcode.main.barcode_version() AS worker_version"},
+  {"name": "count_supported_formats", "prompt": "How many distinct barcode and QR symbologies can this worker generate or decode? Return the total in a column named supported_formats.", "reference_sql": "SELECT COUNT(*) AS supported_formats FROM barcode.main.barcode_formats"},
+  {"name": "list_supported_formats", "prompt": "List every barcode and QR symbology name this worker supports, ordered alphabetically, in a column named format.", "reference_sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"},
+  {"name": "decode_all_symbols", "prompt": "Encode the text 'hello world' as a QR code image, then decode every symbol found in that image. Return one row per symbol with its sequence index, format, and decoded text.", "reference_sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"},
+  {"name": "decode_roundtrip", "prompt": "Encode the text 'hello world' as a QR code image, then decode that image back to a string. Return the decoded text in a column named decoded_text.", "reference_sql": "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded_text"},
+  {"name": "detect_symbology", "prompt": "Encode the text 'ping' as a QR code image, then report the barcode symbology detected in that image. Return it in a column named format.", "reference_sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('ping')) AS format"}
+]"#
+                .to_string(),
             ),
         ],
         source_url: Some("https://github.com/Query-farm/vgi-barcode".to_string()),
@@ -167,6 +184,18 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ("domain".to_string(), "imaging".to_string()),
                 ("category".to_string(), "barcode".to_string()),
                 ("topic".to_string(), "decode-and-generate".to_string()),
+                // VGI413: the schema's category registry — an ordered list of the
+                // navigation sections its objects are grouped into. Each object
+                // carries a `vgi.category` naming one of these.
+                (
+                    "vgi.categories".to_string(),
+                    r#"[
+  {"name": "decode", "description": "Read and recognize barcodes and QR codes from image data."},
+  {"name": "generate", "description": "Create scannable barcode and QR-code images from text."},
+  {"name": "reference", "description": "Discover the supported symbologies and inspect the worker build."}
+]"#
+                    .to_string(),
+                ),
                 (
                     "vgi.doc_llm".to_string(),
                     "Barcode / QR-code decode and generation functions: read the text and format \
@@ -178,13 +207,16 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 ),
                 (
                     "vgi.doc_md".to_string(),
-                    "# barcode.main\n\nThe `main` schema of the barcode worker. It holds the \
-                     scalar functions (`decode_barcode`, `barcode_format`, `generate_qr`, \
-                     `generate_barcode`, `barcode_version`) and table functions \
-                     (`decode_barcodes`, `barcode_formats`) for decoding and generating \
-                     barcodes and QR codes over Apache Arrow.\n\nUse the scalars per-row over an \
-                     image column, the `decode_barcodes` table to fan one image into all of its \
-                     symbols, and `barcode_formats` to discover the supported symbology names."
+                    "# barcode.main\n\nThe primary schema of the barcode worker. It groups the \
+                     barcode and QR-code capabilities into three areas: **decoding** symbols out \
+                     of image data, **generating** scannable barcode/QR images from text, and \
+                     **reference** lookups for the supported symbologies and the worker build.\n\n\
+                     Decoding accepts raster images (PNG, JPEG, GIF, BMP, WebP) and is hardened \
+                     against hostile or oversized input — unreadable data yields `NULL` or zero \
+                     rows rather than an error, so it is safe to run over untrusted data at scale. \
+                     Generation returns a PNG BLOB and raises a clear error only for an unknown \
+                     symbology or an unencodable payload. List the schema to discover the exact \
+                     functions and their signatures."
                         .to_string(),
                 ),
                 // VGI506 representative example queries for the schema.
@@ -260,8 +292,10 @@ fn barcode_formats_table() -> CatTable {
                 "which barcodes",
             ]),
         ),
-        // VGI123 classifying tag.
-        ("category".to_string(), "barcode".to_string()),
+        // VGI413: place this table in one of the schema's declared categories.
+        ("vgi.category".to_string(), "reference".to_string()),
+        // VGI123 classifying tag so the table is findable by facet.
+        ("domain".to_string(), "imaging".to_string()),
         (
             "vgi.example_queries".to_string(),
             r#"[
