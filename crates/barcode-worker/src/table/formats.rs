@@ -47,7 +47,13 @@ impl TableFunction for BarcodeFormats {
     }
 
     fn metadata(&self) -> FunctionMetadata {
-        let mut tags = crate::meta::object_tags(
+        // No result-schema tag here: `barcode_formats` is also surfaced as a
+        // browsable catalog TABLE (see `main.rs::barcode_formats_table`), whose
+        // documented `format` column already describes the single output column,
+        // so a table-function result schema is neither required (VGI307) nor
+        // desirable. (The old free-form `vgi.result_columns_md` was retired —
+        // VGI414.)
+        let tags = crate::meta::object_tags(
             "Supported Barcode Formats",
             "List every barcode/QR symbology name the worker can generate or decode, one row per \
              format. Use it to discover which format strings are valid inputs to generate_barcode \
@@ -65,14 +71,6 @@ impl TableFunction for BarcodeFormats {
             ],
             "reference",
         );
-        tags.push((
-            "vgi.result_columns_md".into(),
-            "| column | type | description |\n\
-             |---|---|---|\n\
-             | `format` | VARCHAR | A supported barcode/QR symbology name, e.g. `QR_CODE`, \
-             `EAN_13`, `CODE_128`, `DATA_MATRIX`, `PDF_417`, `AZTEC`. |"
-                .into(),
-        ));
         FunctionMetadata {
             description: "List the supported barcode/QR format names".into(),
             tags,

@@ -44,6 +44,13 @@ fn const_any(name: &str, position: i32, doc: &str) -> ArgSpec {
         is_varargs: false,
         arrow_data_type: None,
         type_bound: None,
+        choices: None,
+        ge: None,
+        le: None,
+        gt: None,
+        lt: None,
+        pattern: None,
+        default: None,
     }
 }
 
@@ -130,7 +137,9 @@ impl ScalarFunction for GenerateQr {
             "text",
             0,
             "varchar",
-            "Payload to encode into the QR code (URL, identifier, or arbitrary text)",
+            // Free-form input: any string encodes. Phrased so it does not read as
+            // a closed enumeration of allowed values (VGI317).
+            "Arbitrary text to encode into the QR code — for example a website link.",
         )];
         if self.with_size {
             specs.push(const_any(

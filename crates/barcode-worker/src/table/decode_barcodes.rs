@@ -67,14 +67,18 @@ impl TableFunction for DecodeBarcodes {
             ],
             "decode",
         );
+        // VGI307/VGI321: this table function has no backing table, so it must
+        // declare its static result schema as a structured JSON array of
+        // {name, type, description} objects (the retired free-form
+        // `vgi.result_columns_md` is no longer read — VGI414).
         tags.push((
-            "vgi.result_columns_md".into(),
-            "| column | type | description |\n\
-             |---|---|---|\n\
-             | `seq` | BIGINT | Zero-based index of the symbol within the image. |\n\
-             | `format` | VARCHAR | Detected symbology, e.g. `QR_CODE`, `EAN_13`, `CODE_128`. |\n\
-             | `text` | VARCHAR | Decoded payload text of the symbol. |"
-                .into(),
+            "vgi.result_columns_schema".into(),
+            r#"[
+  {"name": "seq", "type": "BIGINT", "description": "Zero-based index of the symbol within the image, in detection order."},
+  {"name": "format", "type": "VARCHAR", "description": "Detected symbology name in canonical ZXing form, e.g. QR_CODE, EAN_13, CODE_128."},
+  {"name": "text", "type": "VARCHAR", "description": "Decoded payload text of the symbol."}
+]"#
+            .into(),
         ));
         tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
         FunctionMetadata {

@@ -153,7 +153,8 @@ fn catalog_metadata(name: &str) -> CatalogModel {
   {"name": "list_supported_formats", "prompt": "List every barcode and QR symbology name this worker supports, ordered alphabetically, in a column named format.", "reference_sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"},
   {"name": "decode_all_symbols", "prompt": "Encode the text 'hello world' as a QR code image, then decode every symbol found in that image. Return one row per symbol with its sequence index, format, and decoded text.", "reference_sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"},
   {"name": "decode_roundtrip", "prompt": "Encode the text 'hello world' as a QR code image, then decode that image back to a string. Return the decoded text in a column named decoded_text.", "reference_sql": "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded_text"},
-  {"name": "detect_symbology", "prompt": "Encode the text 'ping' as a QR code image, then report the barcode symbology detected in that image. Return it in a column named format.", "reference_sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('ping')) AS format"}
+  {"name": "detect_symbology", "prompt": "Encode the text 'ping' as a QR code image, then report the barcode symbology detected in that image. Return it in a column named format.", "reference_sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('ping')) AS format"},
+  {"name": "generate_ean13_roundtrip", "prompt": "Generate an EAN-13 barcode image for the product code '5901234123457', then decode that image and report the symbology it was detected as. Return the symbology in a column named format.", "reference_sql": "SELECT barcode.main.barcode_format(barcode.main.generate_barcode('5901234123457', 'EAN_13')) AS format"}
 ]"#
                 .to_string(),
             ),
@@ -299,8 +300,8 @@ fn barcode_formats_table() -> CatTable {
         (
             "vgi.example_queries".to_string(),
             r#"[
-  {"description": "List every supported barcode/QR symbology name.", "sql": "SELECT * FROM barcode.main.barcode_formats"},
-  {"description": "List the supported symbology names alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"}
+  {"description": "Count how many barcode/QR symbologies this worker supports.", "sql": "SELECT count(*) AS supported_formats FROM barcode.main.barcode_formats"},
+  {"description": "List the Code-family symbologies (CODE_39/93/128) alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats WHERE format LIKE 'CODE%' ORDER BY format"}
 ]"#
             .to_string(),
         ),
