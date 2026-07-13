@@ -459,7 +459,7 @@ dependencies = [
  "log",
  "rxing",
  "vgi",
- "vgi-rpc",
+ "vgi-rpc 0.12.0",
 ]
 
 [[package]]
@@ -2954,7 +2954,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "vgi-rpc",
+ "vgi-rpc 0.8.0",
 ]
 
 [[package]]
@@ -2989,8 +2989,44 @@ dependencies = [
  "tower-http",
  "tracing",
  "url",
- "vgi-rpc-macros",
+ "vgi-rpc-macros 0.8.0",
  "windows-sys 0.59.0",
+ "zstd",
+]
+
+[[package]]
+name = "vgi-rpc"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "914f80427c457653e65d3852bea370e76ae5bc6e6d143702539cecf8febba336"
+dependencies = [
+ "arrow-array",
+ "arrow-buffer",
+ "arrow-cast",
+ "arrow-data",
+ "arrow-ipc",
+ "arrow-schema",
+ "arrow-select",
+ "axum",
+ "base64",
+ "bincode",
+ "bytes",
+ "chacha20poly1305",
+ "chrono",
+ "flatbuffers",
+ "flate2",
+ "hmac",
+ "rand",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 2.0.18",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "url",
+ "vgi-rpc-macros 0.12.0",
  "zstd",
 ]
 
@@ -2999,6 +3035,17 @@ name = "vgi-rpc-macros"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e390d80aba8541ace01f79b23f994eb090e9eaa38df1634031df7249a939311"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "vgi-rpc-macros"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c14d83ef5fe336f4c2f588b2ca9d0798fff24f308d8e051c1efb5cfdf16fd51"
 dependencies = [
  "proc-macro2",
  "quote",
