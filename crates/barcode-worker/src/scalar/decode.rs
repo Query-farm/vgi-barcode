@@ -36,6 +36,11 @@ pub struct DecodeBarcode {
     keywords: &'static [&'static str],
     description_llm: &'static str,
     description_md: &'static str,
+    /// JSON `[{description, sql}]` for the `vgi.example_queries` tag. Its `sql`
+    /// matches `example_sql` (whitespace-insensitively) so the linter's merge of
+    /// the tag with the native `examples` column keeps the described entry —
+    /// otherwise the native example, which has no description, trips VGI515.
+    example_queries: &'static str,
 }
 
 impl DecodeBarcode {
@@ -60,13 +65,13 @@ impl DecodeBarcode {
                 "read qr",
                 "extract payload",
             ],
-            description_llm:
-                "Decode the first barcode or QR code found in an image BLOB (PNG/JPEG/GIF/BMP/WebP) \
-                 and return its decoded text payload. Returns NULL when the image contains no \
-                 symbol or cannot be decoded; never errors on hostile input.",
+            description_llm: "Decode the first barcode or QR code found in an image `BLOB` \
+                 (PNG/JPEG/GIF/BMP/WebP) and return its decoded text payload. Returns NULL when \
+                 the image contains no symbol or cannot be decoded; never errors on hostile input.",
             description_md:
-                "Decode the first barcode/QR in an image BLOB to its **text**. Returns NULL when \
+                "Decode the first barcode/QR in an image `BLOB` to its **text**. Returns NULL when \
                  no symbol is found.",
+            example_queries: r#"[{"description": "Decode the text of the first barcode/QR in an image (here a freshly generated QR).", "sql": "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world'));"}]"#,
         }
     }
 
@@ -93,11 +98,12 @@ impl DecodeBarcode {
             ],
             description_llm:
                 "Identify the symbology (format) of the first barcode or QR code found in an image \
-                 BLOB and return its canonical ZXing name, e.g. QR_CODE, EAN_13, CODE_128. Returns \
-                 NULL when the image contains no symbol or cannot be decoded.",
+                 `BLOB` and return its canonical ZXing name, e.g. QR_CODE, EAN_13, CODE_128. \
+                 Returns NULL when the image contains no symbol or cannot be decoded.",
             description_md:
-                "Return the **format name** of the first barcode/QR in an image BLOB, e.g. \
+                "Return the **format name** of the first barcode/QR in an image `BLOB`, e.g. \
                  `QR_CODE`. Returns NULL when no symbol is found.",
+            example_queries: r#"[{"description": "Identify the symbology of the first barcode/QR in an image (e.g. 'QR_CODE').", "sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world'));"}]"#,
         }
     }
 }
@@ -108,6 +114,19 @@ impl ScalarFunction for DecodeBarcode {
     }
 
     fn metadata(&self) -> FunctionMetadata {
+        let mut tags = crate::meta::object_tags(
+            self.title,
+            self.description_llm,
+            self.description_md,
+            self.keywords,
+            "decode",
+        );
+        // VGI515: carry described example queries in a tag as well as the native
+        // `examples` column, so every example the linter sees has a description.
+        tags.push((
+            "vgi.example_queries".to_string(),
+            self.example_queries.to_string(),
+        ));
         FunctionMetadata {
             description: self.desc.into(),
             return_type: Some(DataType::Utf8),
@@ -116,13 +135,7 @@ impl ScalarFunction for DecodeBarcode {
                 description: self.example_desc.into(),
                 expected_output: None,
             }],
-            tags: crate::meta::object_tags(
-                self.title,
-                self.description_llm,
-                self.description_md,
-                self.keywords,
-                "decode",
-            ),
+            tags,
             ..Default::default()
         }
     }

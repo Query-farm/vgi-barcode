@@ -50,11 +50,11 @@ impl TableFunction for DecodeBarcodes {
     fn metadata(&self) -> FunctionMetadata {
         let mut tags = crate::meta::object_tags(
             "Decode All Barcodes In Image",
-            "Decode every barcode and QR code found in a single image BLOB, returning one row per \
+            "Decode every barcode and QR code found in a single image `BLOB`, returning one row per \
              symbol with its zero-based sequence index, detected format, and decoded text. An \
              undecodable or hostile blob, or a valid image with no symbols, yields zero rows. The \
              image is a bind-time constant argument.",
-            "Decode **all** barcodes/QR codes in an image BLOB into `(seq, format, text)` rows.",
+            "Decode **all** barcodes/QR codes in an image `BLOB` into `(seq, format, text)` rows.",
             &[
                 "decode all barcodes",
                 "multiple barcodes",

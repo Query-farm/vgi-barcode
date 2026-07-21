@@ -26,6 +26,23 @@ fn ve(e: impl std::fmt::Display) -> RpcError {
     RpcError::value_error(e.to_string())
 }
 
+// Described `vgi.example_queries` for each generator, covering BOTH arity
+// overloads in a single tag. DuckDB registers the two overloads under one
+// function name and keeps only one overload's `vgi.example_queries` tag, yet it
+// still surfaces BOTH overloads' native `examples` entries; the linter merges
+// tag+native by SQL, so the winning tag must describe every native example or the
+// undescribed one trips VGI515. Each `sql` here is byte-identical to the matching
+// overload's native `FunctionExample.sql` so the described entry wins the merge.
+const QR_EXAMPLE_QUERIES: &str = r#"[
+  {"description": "Encode a URL as a default-size QR-code PNG.", "sql": "SELECT barcode.main.generate_qr('https://query.farm');"},
+  {"description": "Encode a URL as a 512x512-pixel QR-code PNG.", "sql": "SELECT barcode.main.generate_qr('https://query.farm', 512);"}
+]"#;
+
+const BARCODE_EXAMPLE_QUERIES: &str = r#"[
+  {"description": "Encode text as a default-size Code 128 barcode PNG.", "sql": "SELECT barcode.main.generate_barcode('CODE128', 'CODE_128');"},
+  {"description": "Encode an EAN-13 product code as a 600-pixel-wide barcode PNG.", "sql": "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);"}
+]"#;
+
 /// A bind-time constant argument typed as ANY. We use ANY (rather than a
 /// concrete `varchar`/`int64`) for the *disambiguating* const args of our arity
 /// overloads so that overload resolution distinguishes the overloads by argument
@@ -106,28 +123,33 @@ impl ScalarFunction for GenerateQr {
                 },
             )
         };
+        let mut tags = crate::meta::object_tags(
+            "Generate QR Code Image",
+            "Encode the given text as a QR code and return it as a PNG image `BLOB`. Optionally \
+             takes a square side length in pixels (default 256). Use for producing scannable \
+             QR codes from URLs, payloads, or arbitrary text in SQL.",
+            "Generate a **QR-code PNG** (`BLOB`) from text, optionally at a chosen pixel size.",
+            &[
+                "generate qr",
+                "qr code",
+                "make qr",
+                "encode qr",
+                "qr png",
+                "create barcode image",
+                "generate_qr",
+                "scannable code",
+            ],
+            "generate",
+        );
+        tags.push((
+            "vgi.example_queries".to_string(),
+            QR_EXAMPLE_QUERIES.to_string(),
+        ));
         FunctionMetadata {
             description: description.into(),
             return_type: Some(DataType::Binary),
             examples: vec![example],
-            tags: crate::meta::object_tags(
-                "Generate QR Code Image",
-                "Encode the given text as a QR code and return it as a PNG image BLOB. Optionally \
-                 takes a square side length in pixels (default 256). Use for producing scannable \
-                 QR codes from URLs, payloads, or arbitrary text in SQL.",
-                "Generate a **QR-code PNG** (BLOB) from text, optionally at a chosen pixel size.",
-                &[
-                    "generate qr",
-                    "qr code",
-                    "make qr",
-                    "encode qr",
-                    "qr png",
-                    "create barcode image",
-                    "generate_qr",
-                    "scannable code",
-                ],
-                "generate",
-            ),
+            tags,
             ..Default::default()
         }
     }
@@ -231,33 +253,38 @@ impl ScalarFunction for GenerateBarcode {
                 },
             )
         };
+        let mut tags = crate::meta::object_tags(
+            "Generate Barcode Image",
+            "Encode the given text in a named barcode symbology (e.g. EAN_13, UPC_A, CODE_128, \
+             CODE_39, ITF, CODABAR, DATA_MATRIX, PDF_417, AZTEC, QR_CODE) and return it as a \
+             PNG image `BLOB`. Optionally takes an image width in pixels (default 256). Use for \
+             producing scannable product/barcode images in SQL.",
+            "Generate a **barcode PNG** (`BLOB`) from text in a named symbology, optionally at a \
+             chosen pixel width.",
+            &[
+                "generate barcode",
+                "make barcode",
+                "encode barcode",
+                "barcode png",
+                "ean",
+                "upc",
+                "code 128",
+                "code 39",
+                "symbology",
+                "generate_barcode",
+                "create barcode image",
+            ],
+            "generate",
+        );
+        tags.push((
+            "vgi.example_queries".to_string(),
+            BARCODE_EXAMPLE_QUERIES.to_string(),
+        ));
         FunctionMetadata {
             description: description.into(),
             return_type: Some(DataType::Binary),
             examples: vec![example],
-            tags: crate::meta::object_tags(
-                "Generate Barcode Image",
-                "Encode the given text in a named barcode symbology (e.g. EAN_13, UPC_A, CODE_128, \
-                 CODE_39, ITF, CODABAR, DATA_MATRIX, PDF_417, AZTEC, QR_CODE) and return it as a \
-                 PNG image BLOB. Optionally takes an image width in pixels (default 256). Use for \
-                 producing scannable product/barcode images in SQL.",
-                "Generate a **barcode PNG** (BLOB) from text in a named symbology, optionally at a \
-                 chosen pixel width.",
-                &[
-                    "generate barcode",
-                    "make barcode",
-                    "encode barcode",
-                    "barcode png",
-                    "ean",
-                    "upc",
-                    "code 128",
-                    "code 39",
-                    "symbology",
-                    "generate_barcode",
-                    "create barcode image",
-                ],
-                "generate",
-            ),
+            tags,
             ..Default::default()
         }
     }

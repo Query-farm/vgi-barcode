@@ -29,7 +29,8 @@ use std::sync::Arc;
 use vgi::catalog::{CatSchema, CatTable, CatalogModel};
 use vgi::Worker;
 
-/// Worker version string, surfaced by `barcode_version()`.
+/// Worker build version, published as the catalog's `implementation_version`
+/// (readable from `vgi_catalogs()` without spending a query).
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
@@ -108,7 +109,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  venerable [ZXing](https://github.com/zxing/zxing) (\"zebra crossing\") library. \
                  Input rasters (PNG, JPEG, GIF, BMP, WebP) are converted to grayscale and scanned \
                  for one or many symbols; text is encoded into a bit matrix and rendered to a PNG \
-                 BLOB. Full API documentation for the underlying library lives at \
+                 `BLOB`. Full API documentation for the underlying library lives at \
                  [docs.rs/rxing](https://docs.rs/rxing). The worker streams everything over Apache \
                  Arrow IPC, so results flow back into DuckDB as native columns without \
                  intermediate files.\n\n\
@@ -117,9 +118,8 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                  fan a single image that holds several codes into one row per symbol, or to \
                  produce scannable barcode and QR PNGs for labels, tickets, and links — without \
                  leaving SQL or standing up an external service. Text encoding and image decoding \
-                 round-trip cleanly, so you can both mint and re-read codes in one query. List the \
-                 schema to discover the exact functions and their signatures; a quick round-trip \
-                 looks like:\n\n\
+                 round-trip cleanly, so you can both mint and re-read codes in one query. A quick \
+                 round-trip looks like:\n\n\
                  ```sql\n\
                  SELECT decode_barcode(generate_qr('https://query.farm'));\n\
                  SELECT generate_barcode('5901234123457', 'EAN_13');\n\
@@ -148,7 +148,6 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             (
                 "vgi.agent_test_tasks".to_string(),
                 r#"[
-  {"name": "worker_version", "prompt": "Which version of the barcode worker is currently attached? Return the single version string in a column named worker_version.", "reference_sql": "SELECT barcode.main.barcode_version() AS worker_version"},
   {"name": "count_supported_formats", "prompt": "How many distinct barcode and QR symbologies can this worker generate or decode? Return the total in a column named supported_formats.", "reference_sql": "SELECT COUNT(*) AS supported_formats FROM barcode.main.barcode_formats"},
   {"name": "list_supported_formats", "prompt": "List every barcode and QR symbology name this worker supports, ordered alphabetically, in a column named format.", "reference_sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"},
   {"name": "decode_all_symbols", "prompt": "Encode the text 'hello world' as a QR code image, then decode every symbol found in that image. Return one row per symbol with its sequence index, format, and decoded text.", "reference_sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"},
@@ -160,6 +159,10 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
         ],
         source_url: Some("https://github.com/Query-farm/vgi-barcode".to_string()),
+        // Publish the worker build version as catalog metadata (VGI328): an agent
+        // reads it from `vgi_catalogs()` without spending a query, and it can never
+        // drift from the running binary — no diagnostic scalar function needed.
+        implementation_version: Some(version().to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
             comment: Some("Barcode / QR-code decode and generation functions.".to_string()),
@@ -215,22 +218,25 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                      Decoding accepts raster images (PNG, JPEG, GIF, BMP, WebP) and is hardened \
                      against hostile or oversized input — unreadable data yields `NULL` or zero \
                      rows rather than an error, so it is safe to run over untrusted data at scale. \
-                     Generation returns a PNG BLOB and raises a clear error only for an unknown \
-                     symbology or an unencodable payload. List the schema to discover the exact \
-                     functions and their signatures."
+                     Generation returns a PNG `BLOB` and raises a clear error only for an unknown \
+                     symbology or an unencodable payload."
                         .to_string(),
                 ),
-                // VGI506 representative example queries for the schema.
+                // VGI506/VGI515 representative example queries for the schema, as a
+                // JSON list of described {description, sql} objects. Each query is
+                // catalog-qualified and projects explicit columns (no bare SELECT *)
+                // so it reads as a worked example, not a dump (VGI514).
                 (
                     "vgi.example_queries".to_string(),
-                    "SELECT barcode.main.barcode_version();\n\
-                     SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world'));\n\
-                     SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world'));\n\
-                     SELECT barcode.main.generate_qr('https://query.farm');\n\
-                     SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13');\n\
-                     SELECT * FROM barcode.main.barcode_formats();\n\
-                     SELECT * FROM barcode.main.decode_barcodes(barcode.main.generate_qr('multi'));"
-                        .to_string(),
+                    r#"[
+  {"description": "Round-trip: encode text as a QR image, then decode it back to a string.", "sql": "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded"},
+  {"description": "Detect the symbology of the first barcode/QR in a generated image.", "sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world')) AS format"},
+  {"description": "Encode a URL as a QR-code PNG image (returns a BLOB).", "sql": "SELECT barcode.main.generate_qr('https://query.farm') AS qr_png"},
+  {"description": "Encode an EAN-13 product code as a barcode PNG image.", "sql": "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13') AS ean13_png"},
+  {"description": "List every supported symbology name, alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"},
+  {"description": "Fan one image out into every symbol it contains, one row each.", "sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('multi')) ORDER BY seq"}
+]"#
+                    .to_string(),
                 ),
             ],
             views: Vec::new(),

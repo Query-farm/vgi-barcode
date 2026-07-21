@@ -54,7 +54,6 @@ SELECT * FROM barcode_formats();
 | `generate_qr(text, size_px)` | `BLOB` | QR-code PNG of the given size. |
 | `generate_barcode(text, format)` | `BLOB` | PNG of `text` in `format` (default size). |
 | `generate_barcode(text, format, size_px)` | `BLOB` | PNG of the given size. |
-| `barcode_version()` | `VARCHAR` | Worker version string. |
 
 ### Table
 

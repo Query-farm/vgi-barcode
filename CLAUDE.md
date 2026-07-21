@@ -108,7 +108,9 @@ CI (`.github/workflows/ci.yml`) runs fmt/clippy/build/test plus a gated
 ## Function surface
 
 Scalars: `decode_barcode` (VARCHAR), `barcode_format` (VARCHAR), `generate_qr`
-(BLOB, 1- and 2-arg), `generate_barcode` (BLOB, 2- and 3-arg), `barcode_version`
-(VARCHAR). Tables: `decode_barcodes` (seq/format/text), `barcode_formats`
-(format). Garbage/empty/oversized/hostile input → graceful NULL / no rows; an
-invalid generate-format name is a clear error.
+(BLOB, 1- and 2-arg), `generate_barcode` (BLOB, 2- and 3-arg). Tables:
+`decode_barcodes` (seq/format/text), `barcode_formats` (format).
+Garbage/empty/oversized/hostile input → graceful NULL / no rows; an invalid
+generate-format name is a clear error. The worker build version is published as
+the catalog's `implementation_version` (read it from `vgi_catalogs()`), not as a
+scalar function (VGI328).
