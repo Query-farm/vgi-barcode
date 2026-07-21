@@ -12,6 +12,9 @@
 #   subprocess  VGI_BARCODE_WORKER = the stdio worker command (DuckDB spawns it).
 #   http        start `barcode-worker --http` (auto port; advertises `PORT:<n>`
 #               on stdout), VGI_BARCODE_WORKER = http://127.0.0.1:<port>.
+#               If VGI_BARCODE_WORKER is ALREADY set to an http(s):// URL (e.g. a
+#               pre-launched container in the docker image_test), it is used
+#               as-is and no local worker is spawned.
 #   unix        start `barcode-worker --unix <sock>` (advertises `UNIX:<sock>`
 #               on stdout), VGI_BARCODE_WORKER = unix://<sock>.
 #
@@ -23,6 +26,9 @@
 # Optional:
 #   TRANSPORT         subprocess | http | unix   (default: subprocess)
 #   STAGE             scratch dir for the preprocessed test tree (default: mktemp)
+#   TEST_PATTERN      runner glob/path under the staged tree to execute
+#                     (default: test/sql/*). All files are always staged; this
+#                     only narrows what RUNS — e.g. a single-file stdio smoke.
 set -euo pipefail
 
 TRANSPORT="${TRANSPORT:-subprocess}"
@@ -123,7 +129,17 @@ fi
 # the binary itself is the stdio LOCATION DuckDB spawns.
 case "$TRANSPORT" in
   subprocess) export VGI_BARCODE_WORKER="${VGI_BARCODE_WORKER:-$WORKER_BIN}" ;;
-  http)  start_server_and_set_location http ;;
+  http)
+    # Honor a pre-launched HTTP worker (e.g. a running container in the docker
+    # image_test): if VGI_BARCODE_WORKER already points at an http(s) URL, use it
+    # and skip spawning a local binary. The awk preprocessor still injects httpfs
+    # because TRANSPORT=http.
+    if [[ "${VGI_BARCODE_WORKER:-}" =~ ^https?:// ]]; then
+      echo "Using pre-launched HTTP worker at $VGI_BARCODE_WORKER"
+    else
+      start_server_and_set_location http
+    fi
+    ;;
   unix)  start_server_and_set_location unix ;;
   *) echo "ERROR: unknown TRANSPORT '$TRANSPORT' (want subprocess|http|unix)" >&2; exit 1 ;;
 esac
@@ -155,10 +171,11 @@ rm -f "$STAGE/test/_warm.test"
 # so a broken http leg can report "All tests were skipped" with exit 0 and look
 # green. Tee the report and fail if NOTHING actually ran. (For subprocess/unix
 # there is no skip path, so this only ever bites a genuinely broken http leg.)
-echo "Running suite (transport: $TRANSPORT, worker: $VGI_BARCODE_WORKER) ..."
+TEST_PATTERN="${TEST_PATTERN:-test/sql/*}"
+echo "Running suite (transport: $TRANSPORT, worker: $VGI_BARCODE_WORKER, pattern: $TEST_PATTERN) ..."
 REPORT="$STAGE/.report.txt"
 set +e
-"$HAYBARN_UNITTEST" "test/sql/*" 2>&1 | tee "$REPORT"
+"$HAYBARN_UNITTEST" "$TEST_PATTERN" 2>&1 | tee "$REPORT"
 status="${PIPESTATUS[0]}"
 set -e
 if grep -qiE "All tests were skipped|total skipped [1-9]" "$REPORT"; then
