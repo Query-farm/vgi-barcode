@@ -5,3 +5,6 @@
 
 # vgi-lint verdict caches (content-hashed; local only)
 .vgi-*-cache.json
+
+# Browser build output (wasm/build.sh)
+/wasm/dist

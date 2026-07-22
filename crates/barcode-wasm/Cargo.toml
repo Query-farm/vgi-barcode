@@ -1,0 +1,20 @@
+[package]
+name = "barcode-wasm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Browser (emscripten) build of the barcode VGI worker, served over a SharedArrayBuffer channel"
+publish = false
+
+# staticlib: emcc links this into the Web Worker module (see wasm/build.sh).
+# Cargo never emits a .wasm for it directly.
+[lib]
+name = "barcode_wasm"
+crate-type = ["staticlib"]
+path = "src/lib.rs"
+
+[dependencies]
+barcode-worker = { path = "../barcode-worker" }
+vgi = { workspace = true }

@@ -8,20 +8,38 @@ authors.workspace = true
 repository.workspace = true
 description = "VGI worker bringing barcode / QR-code decode and generation to DuckDB over Apache Arrow"
 
+[lib]
+name = "barcode_worker"
+path = "src/lib.rs"
+
 [[bin]]
 name = "barcode-worker"
 path = "src/main.rs"
 
 [dependencies]
-vgi.workspace = true
-vgi-rpc.workspace = true
 arrow-array.workspace = true
 arrow-buffer.workspace = true
 arrow-schema.workspace = true
 rxing.workspace = true
 image.workspace = true
 log = "0.4"
+
+# --- Native ---------------------------------------------------------------
+# The SDK's real default features — unchanged from before the wasm split: the
+# native binary serves over the stdio/HTTP transport and env_logger writes to
+# stderr.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+vgi = { workspace = true, features = ["sqlite", "transport-http"] }
+vgi-rpc = { workspace = true, features = ["http"] }
 env_logger = "0.11"
+
+# --- wasm32 ---------------------------------------------------------------
+# No sqlite (C) and no HTTP transport (tokio/mio/axum); the bincode stream codec
+# is what the SAB byte-channel transport needs. No env_logger — the browser build
+# has no stderr and logs are handled by the host runtime.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+vgi = { workspace = true }
+vgi-rpc = { workspace = true, features = ["stream-codec"] }
 
 [dev-dependencies]
 image.workspace = true
