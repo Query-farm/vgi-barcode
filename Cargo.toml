@@ -27,7 +27,7 @@ repository = "https://github.com/Query-farm/vgi-barcode"
 # transport serves over a byte channel rather than HTTP. Features are additive,
 # and the two are behind mutually-exclusive target cfgs.
 vgi = { version = "0.24", default-features = false }
-vgi-rpc = { version = "0.16", default-features = false, features = ["macros"] }
+vgi-rpc = { version = "0.17", default-features = false, features = ["macros"] }
 arrow-array = "59"
 arrow-buffer = "59"
 arrow-schema = "59"
