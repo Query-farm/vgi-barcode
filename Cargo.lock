@@ -467,7 +467,7 @@ dependencies = [
  "log",
  "rxing",
  "vgi",
- "vgi-rpc",
+ "vgi-rpc 0.16.0",
 ]
 
 [[package]]
@@ -2969,9 +2969,9 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vgi"
-version = "0.24.0"
+version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75a92151a61020f3c53ca05f131952c8c711a7b8dead3aa5c2efbdcd01bab24f"
+checksum = "bb021e959117a5d510230c5b1e1ec75ac3e500b5124ee348f9762993e3ad9305"
 dependencies = [
  "arrow",
  "arrow-arith",
@@ -2991,7 +2991,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "vgi-rpc",
+ "vgi-rpc 0.19.0",
 ]
 
 [[package]]
@@ -2999,6 +2999,42 @@ name = "vgi-rpc"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65650405da09db5904a510d22ada983f9d0eab4a91597c6d60b8fd0c86cae8fd"
+dependencies = [
+ "arrow-array",
+ "arrow-buffer",
+ "arrow-cast",
+ "arrow-data",
+ "arrow-ipc",
+ "arrow-schema",
+ "arrow-select",
+ "axum",
+ "base64",
+ "bincode",
+ "bytes",
+ "chacha20poly1305",
+ "chrono",
+ "flatbuffers",
+ "flate2",
+ "hmac",
+ "rand",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror 2.0.18",
+ "tokio",
+ "tower-http",
+ "tracing",
+ "url",
+ "vgi-rpc-macros 0.16.0",
+ "zstd",
+]
+
+[[package]]
+name = "vgi-rpc"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44c9fd8cf4c7554d7ecd706cb3383e5b8a9114f55b78cbbace97c134739dbcc5"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
@@ -3027,7 +3063,7 @@ dependencies = [
  "tower-http",
  "tracing",
  "url",
- "vgi-rpc-macros",
+ "vgi-rpc-macros 0.19.0",
  "windows-sys 0.59.0",
  "zstd",
 ]
@@ -3037,6 +3073,17 @@ name = "vgi-rpc-macros"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f2619bc5c664d23f063f14928c1d96165fe108c961e6ad3d57c7817a05d812f"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "vgi-rpc-macros"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27f0a8d0c1ceabf0072d1804cf377d805658ae06836fffebd74f610d2613a194"
 dependencies = [
  "proc-macro2",
  "quote",
