@@ -36,7 +36,7 @@ arrow-schema = "59"
 # multi-format decode (QR, EAN-8/13, UPC-A/E, Code128/39/93, ITF, Codabar,
 # DataMatrix, PDF417, Aztec) and encode. Default features bring in the `image`
 # crate + decoders/encoders + multi-barcode readers.
-rxing = "=0.9.1"
+rxing = "=0.9.3"
 
 # Image decode (BLOB in) / encode (PNG out for generators). Pinned to =0.25.8 to
 # match rxing 0.9.1's exact `image` pin (so a single `image` resolves) and to
