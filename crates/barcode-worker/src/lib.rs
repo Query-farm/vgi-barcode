@@ -169,18 +169,19 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             ),
             // VGI152: an analyst-task suite so `vgi-lint simulate` can measure how
             // well an agent actually drives this worker. Each task is a natural
-            // prompt plus the canonical `reference_sql` that answers it. Every task
+            // prompt; the canonical `reference_sql` that answers it lives in the
+            // private `vgi-agent-tests.yaml` sidecar (VGI416). Every task
             // is deterministic and self-contained (it generates its own image), so
             // it needs no external fixtures.
             (
                 "vgi.agent_test_tasks".to_string(),
                 r#"[
-  {"name": "count_supported_formats", "prompt": "How many distinct barcode and QR symbologies can this worker generate or decode? Return the total in a column named supported_formats.", "reference_sql": "SELECT COUNT(*) AS supported_formats FROM barcode.main.barcode_formats"},
-  {"name": "list_supported_formats", "prompt": "List every barcode and QR symbology name this worker supports, ordered alphabetically, in a column named format.", "reference_sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"},
-  {"name": "decode_all_symbols", "prompt": "Encode the text 'hello world' as a QR code image, then decode every symbol found in that image. Return one row per symbol with its sequence index, format, and decoded text.", "reference_sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"},
-  {"name": "decode_roundtrip", "prompt": "Encode the text 'hello world' as a QR code image, then decode that image back to a string. Return the decoded text in a column named decoded_text.", "reference_sql": "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded_text"},
-  {"name": "detect_symbology", "prompt": "Encode the text 'ping' as a QR code image, then report the barcode symbology detected in that image. Return it in a column named format.", "reference_sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('ping')) AS format"},
-  {"name": "generate_ean13_roundtrip", "prompt": "Generate an EAN-13 barcode image for the product code '5901234123457', then decode that image and report the symbology it was detected as. Return the symbology in a column named format.", "reference_sql": "SELECT barcode.main.barcode_format(barcode.main.generate_barcode('5901234123457', 'EAN_13')) AS format"}
+  {"name": "count_supported_formats", "prompt": "How many distinct barcode and QR symbologies can this worker generate or decode? Return the total in a column named supported_formats."},
+  {"name": "list_supported_formats", "prompt": "List every barcode and QR symbology name this worker supports, ordered alphabetically, in a column named format."},
+  {"name": "decode_all_symbols", "prompt": "Encode the text 'hello world' as a QR code image, then decode every symbol found in that image. Return one row per symbol with its sequence index, format, and decoded text."},
+  {"name": "decode_roundtrip", "prompt": "Encode the text 'hello world' as a QR code image, then decode that image back to a string. Return the decoded text in a column named decoded_text."},
+  {"name": "detect_symbology", "prompt": "Encode the text 'ping' as a QR code image, then report the barcode symbology detected in that image. Return it in a column named format."},
+  {"name": "generate_ean13_roundtrip", "prompt": "Generate an EAN-13 barcode image for the product code '5901234123457', then decode that image and report the symbology it was detected as. Return the symbology in a column named format."}
 ]"#
                 .to_string(),
             ),
@@ -192,6 +193,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
         implementation_version: Some(version().to_string()),
         schemas: vec![CatSchema {
             name: "main".to_string(),
+            path: Vec::new(),
             comment: Some("Barcode / QR-code decode and generation functions.".to_string()),
             tags: vec![
                 ("vgi.title".to_string(), "Barcode — main".to_string()),

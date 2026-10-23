@@ -17,8 +17,8 @@ repository = "https://github.com/Query-farm/vgi-barcode"
 
 [workspace.dependencies]
 # VGI Rust SDK (worker side), published on crates.io. Pulls in vgi-rpc and
-# arrow 59 transitively; keep arrow/vgi-rpc here in lockstep with vgi's pins so a
-# single arrow/vgi-rpc resolves. 0.24 provides the wasm `vgi::wasm_worker!` macro
+# arrow 60 transitively; keep arrow/vgi-rpc here in lockstep with vgi's pins so a
+# single arrow/vgi-rpc resolves. 0.46 provides the wasm `vgi::wasm_worker!` macro
 # used by barcode-wasm; requires rustc 1.97 (see rust-version above).
 #
 # Base (feature-less) so each target can opt in: the native build takes the SDK's
@@ -26,21 +26,20 @@ repository = "https://github.com/Query-farm/vgi-barcode"
 # tokio/mio/axum and bundled SQLite do not compile for wasm32, and the browser
 # transport serves over a byte channel rather than HTTP. Features are additive,
 # and the two are behind mutually-exclusive target cfgs.
-vgi = { version = "0.24", default-features = false }
-vgi-rpc = { version = "0.16", default-features = false, features = ["macros"] }
-arrow-array = "59"
-arrow-buffer = "59"
-arrow-schema = "59"
+vgi = { version = "0.46", default-features = false }
+vgi-rpc = { version = "0.32", default-features = false, features = ["macros"] }
+arrow-array = "60"
+arrow-buffer = "60"
+arrow-schema = "60"
 
 # Barcode / QR decode + encode: the maintained Rust port of ZXing. Provides
 # multi-format decode (QR, EAN-8/13, UPC-A/E, Code128/39/93, ITF, Codabar,
 # DataMatrix, PDF417, Aztec) and encode. Default features bring in the `image`
 # crate + decoders/encoders + multi-barcode readers.
-rxing = "=0.9.1"
+rxing = "=0.9.3"
 
 # Image decode (BLOB in) / encode (PNG out for generators). Pinned to =0.25.8 to
-# match rxing 0.9.1's exact `image` pin (so a single `image` resolves) and to
-# keep MSRV at the workspace rust-version (1.86); 0.25.10 bumps MSRV past 1.86.
+# match rxing 0.9.3's exact `image` pin (so a single `image` resolves).
 # Default features off; only the common web/photo raster formats enabled.
 image = { version = "=0.25.8", default-features = false, features = [
     "png", "jpeg", "gif", "bmp", "webp",

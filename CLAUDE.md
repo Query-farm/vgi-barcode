@@ -14,7 +14,7 @@ decode and generation to DuckDB/SQL over Arrow IPC. Built on the `vgi` crate
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi = "0.5.0", rxing, image
+Cargo.toml                          workspace; pins vgi = "0.46" (arrow 60), rxing, image
 crates/barcode-worker/
   src/main.rs                       Worker::new(); registers scalars + tables
   src/barcoding.rs                  PURE logic (no Arrow): decode/encode + dimension guards + unit tests
@@ -50,10 +50,9 @@ permissive on input (accepts `EAN_13` / `ean 13` / `ean13`).
    each file does `SET search_path = 'barcode.main'`, then `USE memory` before
    `DETACH barcode`.
 
-2. **`image` is pinned to `=0.25.8`** — rxing 0.9.1 pins `image = "=0.25.8"`
-   exactly, so we match it so a single `image` resolves (0.25.9 would conflict
-   with rxing; 0.25.10 also bumps MSRV past the workspace `rust-version = 1.86`).
-   `rxing` is pinned `=0.9.1`. Default `image` features are disabled (png/jpeg/
+2. **`image` is pinned to `=0.25.8`** — rxing 0.9.3 pins `image = "=0.25.8"`
+   exactly, so we match it so a single `image` resolves (0.25.9+ would conflict
+   with rxing). `rxing` is pinned `=0.9.3`; bump both together. Default `image` features are disabled (png/jpeg/
    gif/bmp/webp only).
 
 3. **Arity overloads + overload scoring (THE big one).** DuckDB scalar functions

@@ -1,0 +1,21 @@
+# Private graders for the agent-suitability suite (`vgi-lint simulate`).
+#
+# The prompts are published in the catalog's vgi.agent_test_tasks tag
+# (crates/barcode-worker/src/lib.rs); the answers live here, keyed by task
+# name, so the agent being graded never sees them. vgi-lint discovers this
+# file in the directory it runs from. Every task generates its own image, so
+# the suite needs no external fixtures.
+
+tasks:
+  - name: count_supported_formats
+    reference_sql: "SELECT COUNT(*) AS supported_formats FROM barcode.main.barcode_formats"
+  - name: list_supported_formats
+    reference_sql: "SELECT format FROM barcode.main.barcode_formats ORDER BY format"
+  - name: decode_all_symbols
+    reference_sql: "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"
+  - name: decode_roundtrip
+    reference_sql: "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded_text"
+  - name: detect_symbology
+    reference_sql: "SELECT barcode.main.barcode_format(barcode.main.generate_qr('ping')) AS format"
+  - name: generate_ean13_roundtrip
+    reference_sql: "SELECT barcode.main.barcode_format(barcode.main.generate_barcode('5901234123457', 'EAN_13')) AS format"
