@@ -32,6 +32,7 @@ mod table;
 use std::sync::Arc;
 
 use vgi::catalog::{CatSchema, CatTable, CatalogModel};
+use vgi::constraints::{constraint_record, ConstraintKind, ConstraintRecord};
 use vgi::Worker;
 
 /// Worker build version, published as the catalog's `implementation_version`
@@ -341,11 +342,23 @@ fn barcode_formats_table() -> CatTable {
             .to_string(),
         ),
     ];
-    // `format` (column 0) uniquely identifies a row (each symbology name appears
-    // once). `primary_key` is a list of key column-index groups.
-    t.primary_key = vec![vec![0]];
-    // A primary key column is implicitly NOT NULL; declare it so DuckDB and the
-    // linter agree the key column is non-nullable.
-    t.not_null = vec![0];
+    // `format` uniquely identifies a row (each symbology name appears once). A
+    // primary key column is implicitly NOT NULL; declare it too so DuckDB and the
+    // linter agree the key column is non-nullable (served nullability is derived
+    // from these records).
+    t.constraints = [
+        ("barcode_formats.pk", ConstraintKind::PrimaryKey),
+        ("barcode_formats.format.not_null", ConstraintKind::NotNull),
+    ]
+    .into_iter()
+    .map(|(id, kind)| {
+        constraint_record(
+            &ConstraintRecord::new(&["main"], "barcode_formats", id, kind)
+                .with_columns(&[&["format"]])
+                .enforced(),
+        )
+        .expect("valid constraint record")
+    })
+    .collect();
     t
 }

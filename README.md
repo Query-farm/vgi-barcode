@@ -100,7 +100,7 @@ make test-sql                                           # DuckDB SQL end-to-end
 `make test-sql` builds the release worker, points `VGI_BARCODE_WORKER` at it, and
 runs the [`haybarn-unittest`](https://pypi.org/project/haybarn-unittest/)
 sqllogictest suite under `test/sql/`. Install the runner once with
-`uv tool install haybarn-unittest`. Regenerate the committed fixture images with
+`uv tool install --prerelease allow 'haybarn-unittest>=2.0.0rc11,<2.1'`. Regenerate the committed fixture images with
 `make fixtures`.
 
 ## License

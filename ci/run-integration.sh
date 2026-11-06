@@ -148,6 +148,10 @@ esac
 
 cd "$STAGE"
 
+# haybarn-unittest 2.0 isolates $HOME; --keep-home keeps the vgi extension
+# installed under ~/.haybarn visible to every runner invocation.
+HB_ARGS=(--keep-home)
+
 # Warm the extension cache once: vgi from the signed community channel. A miss
 # here is only a warning — the per-test LOAD vgi; (the .test files load it
 # explicitly) is what actually gates each file, and that LOAD only succeeds once
@@ -160,7 +164,7 @@ cat > "$STAGE/test/_warm.test" <<'WARM'
 statement ok
 INSTALL vgi FROM community;
 WARM
-"$HAYBARN_UNITTEST" "test/_warm.test" >/dev/null 2>&1 || echo "::warning::extension warm step did not fully succeed"
+"$HAYBARN_UNITTEST" "${HB_ARGS[@]}" "test/_warm.test" >/dev/null 2>&1 || echo "::warning::extension warm step did not fully succeed"
 rm -f "$STAGE/test/_warm.test"
 
 # Run the whole suite in one invocation, streaming the runner's native
@@ -175,7 +179,7 @@ TEST_PATTERN="${TEST_PATTERN:-test/sql/*}"
 echo "Running suite (transport: $TRANSPORT, worker: $VGI_BARCODE_WORKER, pattern: $TEST_PATTERN) ..."
 REPORT="$STAGE/.report.txt"
 set +e
-"$HAYBARN_UNITTEST" "$TEST_PATTERN" 2>&1 | tee "$REPORT"
+"$HAYBARN_UNITTEST" "${HB_ARGS[@]}" "$TEST_PATTERN" 2>&1 | tee "$REPORT"
 status="${PIPESTATUS[0]}"
 set -e
 if grep -qiE "All tests were skipped|total skipped [1-9]" "$REPORT"; then
