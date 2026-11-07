@@ -18,7 +18,7 @@ the maintained Rust port of [ZXing](https://github.com/zxing/zxing).
 
 ```sql
 LOAD vgi;
-ATTACH 'barcode' (TYPE vgi, LOCATION './target/release/barcode-worker');
+ATTACH 'barcode' (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-barcode@v0.2.1');
 SET search_path = 'barcode.main';
 
 -- Decode the first barcode in an image BLOB.
@@ -41,6 +41,39 @@ SELECT * FROM decode_barcodes(generate_qr('multi'));
 -- Discover the supported formats.
 SELECT * FROM barcode_formats();
 ```
+
+## Quick start
+
+Every [GitHub release](https://github.com/Query-farm/vgi-barcode/releases) ships a prebuilt worker binary. The `vgi` extension downloads the one for your platform, checks its SHA-256 and caches it, so there is nothing to install besides DuckDB:
+
+```sql
+INSTALL vgi FROM community;
+LOAD vgi;
+
+ATTACH 'barcode' AS barcode (TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-barcode@v0.2.1');
+
+-- Round-trip: encode text as a QR image, then decode it back to a string.
+SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded;
+
+-- Detect the symbology of the first barcode/QR in a generated image.
+SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world')) AS format;
+```
+
+Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64) and Windows (x86-64). `github-auto://` needs an explicit release tag; change `@v0.2.1` to move to a newer release.
+
+### Other ways to run it
+
+- **Docker** (the image bundles the worker; needs a container runtime):
+
+  ```sql
+  ATTACH 'barcode' AS barcode (TYPE vgi, LOCATION 'docker://ghcr.io/query-farm/vgi-barcode:0.2.1');
+  ```
+
+- **Manual download.** Download the archive for your platform from the [releases page](https://github.com/Query-farm/vgi-barcode/releases), verify it against its `.sha256` file (a cosign `.cosign.bundle` is published alongside), unpack it, and set `LOCATION` to the path of the extracted worker executable.
+
+### Build from source
+
+To build the worker yourself, see [Building & testing](#building--testing).
 
 ## Functions
 
