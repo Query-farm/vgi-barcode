@@ -435,7 +435,7 @@ dependencies = [
 
 [[package]]
 name = "barcode-wasm"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "barcode-worker",
  "vgi",
@@ -443,7 +443,7 @@ dependencies = [
 
 [[package]]
 name = "barcode-worker"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "arrow-array",
  "arrow-buffer",
