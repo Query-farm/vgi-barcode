@@ -18,7 +18,7 @@ repository = "https://github.com/Query-farm/vgi-barcode"
 [workspace.dependencies]
 # VGI Rust SDK (worker side), published on crates.io. Pulls in vgi-rpc and
 # arrow 59 transitively; keep arrow/vgi-rpc here in lockstep with vgi's pins so a
-# single arrow/vgi-rpc resolves. 0.49 provides the wasm `vgi::wasm_worker!` macro
+# single arrow/vgi-rpc resolves. 0.49+ provides the wasm `vgi::wasm_worker!` macro
 # used by barcode-wasm; requires rustc 1.97 (see rust-version above).
 #
 # Base (feature-less) so each target can opt in: the native build takes the SDK's
@@ -26,7 +26,7 @@ repository = "https://github.com/Query-farm/vgi-barcode"
 # tokio/mio/axum and bundled SQLite do not compile for wasm32, and the browser
 # transport serves over a byte channel rather than HTTP. Features are additive,
 # and the two are behind mutually-exclusive target cfgs.
-vgi = { version = "0.49.2", default-features = false }
+vgi = { version = "0.50.0", default-features = false }
 vgi-rpc = { version = "0.32.3", default-features = false, features = ["macros"] }
 arrow-array = "59.2"
 arrow-buffer = "59.2"
