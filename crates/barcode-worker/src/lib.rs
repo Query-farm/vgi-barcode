@@ -72,9 +72,11 @@ fn catalog_metadata(name: &str) -> CatalogModel {
         name: name.to_string(),
         comment: Some("Barcode and QR-code decoding and generation over Apache Arrow.".to_string()),
         tags: vec![
+            ("vgi.title".to_string(), "Barcode & QR".to_string()),
             (
-                "vgi.title".to_string(),
-                "Barcode & QR-Code Decode and Generation".to_string(),
+                "vgi.subtitle".to_string(),
+                "Read barcodes and QR codes from images, identify their symbology, and generate new ones as PNGs."
+                    .to_string(),
             ),
             (
                 "vgi.keywords".to_string(),
@@ -197,7 +199,7 @@ fn catalog_metadata(name: &str) -> CatalogModel {
             path: Vec::new(),
             comment: Some("Barcode / QR-code decode and generation functions.".to_string()),
             tags: vec![
-                ("vgi.title".to_string(), "Barcode — main".to_string()),
+                ("vgi.title".to_string(), "Barcode Functions".to_string()),
                 (
                     "vgi.keywords".to_string(),
                     meta::keywords_json(&[
