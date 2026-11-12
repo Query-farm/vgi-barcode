@@ -362,5 +362,8 @@ fn barcode_formats_table() -> CatTable {
         .expect("valid constraint record")
     })
     .collect();
+    // Protocol 3.3 makes a table's embedded scan table_only by default; keep the
+    // documented `barcode_formats()` table-function form callable from SQL too.
+    t.expose_scan = true;
     t
 }
