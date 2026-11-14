@@ -162,3 +162,6 @@ Written by [Query.Farm](https://query.farm).
 
 Copyright 2026 Query Farm LLC - https://query.farm
 
+## Notebooks
+
+[Label identity and image size](notebooks/README.md) — an executed walkthrough of barcode round trips, explicit EAN/UPC equivalence, and a separate pixel-size experiment.
