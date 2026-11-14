@@ -4,5 +4,5 @@ version = "0.2.0"
 description = "Barcode identity, symbol multiplicity and digital image-size QA through SQL"
 requires-python = ">=3.11,<3.15"
 dependencies = [
-    "vgi-example-notebooks[runner] @ git+https://github.com/Query-farm/vgi-example-notebooks@v0.3.1",
+    "vgi-example-notebooks[runner] @ git+https://github.com/Query-farm/vgi-example-notebooks@v0.3.6",
 ]
