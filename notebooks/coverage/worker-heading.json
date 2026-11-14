@@ -1,0 +1,26 @@
+{
+  "repository": "Query-farm/vgi-barcode",
+  "title": "Barcode & QR",
+  "subtitle": "Read barcodes and QR codes from images, identify their symbology, and generate new ones as PNGs.",
+  "evidence_sha256": "e04543dc597b6907a3f2c8d0698af014e947053293c0f9113a93197fce26fe73",
+  "provenance": "Actual catalog tags from the released runtime used by the notebook",
+  "worker_release": "v0.4.0",
+  "runtime_export": {
+    "attach": "ATTACH 'barcode' AS barcode (\n    TYPE vgi, LOCATION 'github-auto://Query-farm/vgi-barcode@v0.4.0'\n);",
+    "query": "SELECT database_name, comment, map_extract_value(tags,'vgi.title') AS title, map_extract_value(tags,'vgi.subtitle') AS subtitle FROM duckdb_databases() WHERE map_extract_value(tags,'vgi.title') IS NOT NULL",
+    "columns": [
+      "database_name",
+      "comment",
+      "title",
+      "subtitle"
+    ],
+    "rows": [
+      [
+        "barcode",
+        "Barcode and QR-code decoding and generation over Apache Arrow.",
+        "Barcode & QR",
+        "Read barcodes and QR codes from images, identify their symbology, and generate new ones as PNGs."
+      ]
+    ]
+  }
+}

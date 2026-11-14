@@ -26,7 +26,7 @@ require a separate destination and failed executions preserve the saved default.
 If an older Colab setup already replaced kernel libraries, save your work, choose
 **Runtime → Disconnect and delete runtime**, reconnect and open this current example.
 
-The [shared standard](https://github.com/Query-farm/vgi-example-notebooks/blob/v0.3.6/docs/standard.md),
+The [shared standard](https://github.com/Query-farm/vgi-example-notebooks/blob/v0.3.8/docs/standard.md),
 runner, canonical branding, secret-isolated SQL session and SVG presentation live in
 [vgi-example-notebooks](https://github.com/Query-farm/vgi-example-notebooks).
 `barcode_example.py` only assembles synthetic images, parses PNG dimensions, checks
