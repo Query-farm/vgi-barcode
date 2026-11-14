@@ -21,7 +21,8 @@ use crate::barcoding::{self, Decoded};
 /// image BLOB is constant-folded (a freshly generated QR), since table functions
 /// take constant arguments rather than row columns. We omit `expected_result`
 /// deliberately — the linter only needs each query to execute cleanly.
-const EXECUTABLE_EXAMPLES: &str = r#"[
+const EXECUTABLE_EXAMPLES: &str = concat!(
+    r#"[
   {
     "description": "Decode every symbol in a freshly generated QR image.",
     "sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"
@@ -29,8 +30,22 @@ const EXECUTABLE_EXAMPLES: &str = r#"[
   {
     "description": "Decode every symbol in a generated EAN-13 barcode image.",
     "sql": "SELECT format, text FROM barcode.main.decode_barcodes(barcode.main.generate_barcode('5901234123457', 'EAN_13'))"
-  }
-]"#;
+  },
+  "#,
+    // Composed (crate::composed): offline and deterministic, so runnable here too.
+    composed_example_json!(relabel_qr_desc, relabel_qr_sql),
+    "\n]"
+);
+
+/// Described example queries for this table function (VGI506). Leads with the
+/// composed relabel example so the agent simulator (first 5 per object) sees it.
+const EXAMPLE_QUERIES: &str = concat!(
+    "[\n  ",
+    composed_example_json!(relabel_qr_desc, relabel_qr_sql),
+    r#",
+  {"description": "Decode every symbol in a freshly generated QR image.", "sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq"}
+]"#
+);
 
 pub struct DecodeBarcodes;
 
@@ -81,6 +96,7 @@ impl TableFunction for DecodeBarcodes {
             .into(),
         ));
         tags.push(("vgi.executable_examples".into(), EXECUTABLE_EXAMPLES.into()));
+        tags.push(("vgi.example_queries".into(), EXAMPLE_QUERIES.into()));
         FunctionMetadata {
             description:
                 "Decode ALL barcodes/QR codes in an image BLOB into (seq, format, text) rows".into(),

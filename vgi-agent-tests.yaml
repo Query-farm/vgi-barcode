@@ -19,3 +19,5 @@ tasks:
     reference_sql: "SELECT barcode.main.barcode_format(barcode.main.generate_qr('ping')) AS format"
   - name: generate_ean13_roundtrip
     reference_sql: "SELECT barcode.main.barcode_format(barcode.main.generate_barcode('5901234123457', 'EAN_13')) AS format"
+  - name: count_ean13_mismatches
+    reference_sql: "SELECT count(*) FILTER (WHERE barcode.main.decode_barcode(barcode.main.generate_barcode(code, 'EAN_13')) <> code) AS mismatches FROM (VALUES ('0705632441947'), ('4006381333931'), ('9780201379624'), ('0036000291452')) AS t(code)"

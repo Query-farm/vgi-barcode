@@ -57,6 +57,16 @@ SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS d
 
 -- Detect the symbology of the first barcode/QR in a generated image.
 SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world')) AS format;
+
+-- Label QA: print EAN-13 barcodes for a list of SKUs, scan each one back, and
+-- flag any that do not round-trip (0036000291452 reads back as UPC_A 036000291452).
+SELECT sku,
+       barcode.main.barcode_format(png) AS format,
+       barcode.main.decode_barcode(png) AS decoded,
+       barcode.main.decode_barcode(png) = sku AS round_trips
+FROM (SELECT sku, barcode.main.generate_barcode(sku, 'EAN_13') AS png
+      FROM (VALUES ('5901234123457'), ('4006381333931'), ('0036000291452')) AS t(sku))
+ORDER BY sku;
 ```
 
 Prebuilt binaries cover macOS (Apple silicon), Linux (x86-64 and arm64) and Windows (x86-64). `github-auto://` needs an explicit release tag; change `@v0.4.0` to move to a newer release.
@@ -106,6 +116,10 @@ ITF, Data Matrix, PDF417, Aztec. Generation accepts the same canonical names
 (`SELECT * FROM barcode_formats()`); 1D symbologies impose their own payload
 constraints (e.g. EAN-13 needs 13 digits), and an unsupported format name is a
 clear error.
+
+An EAN-13 code with a leading `0` is a UPC-A code, and decoding follows ZXing:
+it reports `UPC_A` and the 12 digits without the leading zero (encode
+`'0036000291452'` as `EAN_13`, read back `UPC_A` / `'036000291452'`).
 
 ## Behavior & robustness
 

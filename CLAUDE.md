@@ -16,10 +16,12 @@ decode and generation to DuckDB/SQL over Arrow IPC. Built on the `vgi` crate
 ```
 Cargo.toml                          workspace; pins vgi = "0.51.0" (arrow 59), rxing, image
 crates/barcode-worker/
-  src/main.rs                       Worker::new(); registers scalars + tables
+  src/main.rs                       native entrypoint: build_worker().run()
+  src/lib.rs                        build_worker(): registers scalars + tables, catalog/schema metadata
+  src/composed.rs                   composed (multi-object) example SQL literals; rows pinned by test/sql/composed.test
   src/barcoding.rs                  PURE logic (no Arrow): decode/encode + dimension guards + unit tests
   src/arrow_io.rs                   BLOB/VARCHAR cell reads + in-process scalar test harness
-  src/scalar/{decode,generate,version,mod}.rs   thin Arrow scalar adapters
+  src/scalar/{decode,generate,mod}.rs   thin Arrow scalar adapters
   src/table/{decode_barcodes,formats,mod}.rs    thin Arrow table-producer adapters
   examples/gen_fixtures.rs          deterministically generates the test images (make fixtures)
   tests/roundtrip.rs                integration tests (generate↔decode, hostile input)

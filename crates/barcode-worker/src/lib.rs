@@ -23,6 +23,8 @@
 //! Pure barcode logic (decode/encode, dimension guards) lives in `barcoding.rs`;
 //! the `scalar/` and `table/` modules are thin Arrow adapters over it.
 
+#[macro_use]
+mod composed;
 mod arrow_io;
 mod barcoding;
 mod meta;
@@ -184,7 +186,8 @@ fn catalog_metadata(name: &str) -> CatalogModel {
   {"name": "decode_all_symbols", "prompt": "Encode the text 'hello world' as a QR code image, then decode every symbol found in that image. Return one row per symbol with its sequence index, format, and decoded text."},
   {"name": "decode_roundtrip", "prompt": "Encode the text 'hello world' as a QR code image, then decode that image back to a string. Return the decoded text in a column named decoded_text."},
   {"name": "detect_symbology", "prompt": "Encode the text 'ping' as a QR code image, then report the barcode symbology detected in that image. Return it in a column named format."},
-  {"name": "generate_ean13_roundtrip", "prompt": "Generate an EAN-13 barcode image for the product code '5901234123457', then decode that image and report the symbology it was detected as. Return the symbology in a column named format."}
+  {"name": "generate_ean13_roundtrip", "prompt": "Generate an EAN-13 barcode image for the product code '5901234123457', then decode that image and report the symbology it was detected as. Return the symbology in a column named format."},
+  {"name": "count_ean13_mismatches", "prompt": "Generate EAN-13 barcode images for the product codes '0705632441947', '4006381333931', '9780201379624' and '0036000291452', scan each image back to text, and count how many scan back to a string that differs from the code that was encoded. Return the count as an integer in a column named mismatches."}
 ]"#
                 .to_string(),
             ),
@@ -258,16 +261,26 @@ fn catalog_metadata(name: &str) -> CatalogModel {
                 // JSON list of described {description, sql} objects. Each query is
                 // catalog-qualified and projects explicit columns (no bare SELECT *)
                 // so it reads as a worked example, not a dump (VGI514).
+                // The last three are composed examples (crate::composed) that chain
+                // several of this worker's functions/tables in one query.
                 (
                     "vgi.example_queries".to_string(),
-                    r#"[
+                    concat!(
+                        r#"[
   {"description": "Round-trip: encode text as a QR image, then decode it back to a string.", "sql": "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world')) AS decoded"},
   {"description": "Detect the symbology of the first barcode/QR in a generated image.", "sql": "SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world')) AS format"},
   {"description": "Encode a URL as a QR-code PNG image (returns a BLOB).", "sql": "SELECT barcode.main.generate_qr('https://query.farm') AS qr_png"},
   {"description": "Encode an EAN-13 product code as a barcode PNG image.", "sql": "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13') AS ean13_png"},
   {"description": "List every supported symbology name, alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats ORDER BY format"},
-  {"description": "Fan one image out into every symbol it contains, one row each.", "sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('multi')) ORDER BY seq"}
-]"#
+  {"description": "Fan one image out into every symbol it contains, one row each.", "sql": "SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('multi')) ORDER BY seq"},
+  "#,
+                        composed_example_json!(label_qa_desc, label_qa_sql),
+                        ",\n  ",
+                        composed_example_json!(relabel_qr_desc, relabel_qr_sql),
+                        ",\n  ",
+                        composed_example_json!(format_coverage_desc, format_coverage_sql),
+                        "\n]"
+                    )
                     .to_string(),
                 ),
             ],
@@ -337,10 +350,14 @@ fn barcode_formats_table() -> CatTable {
         ("domain".to_string(), "imaging".to_string()),
         (
             "vgi.example_queries".to_string(),
-            r#"[
+            concat!(
+                r#"[
   {"description": "Count how many barcode/QR symbologies this worker supports.", "sql": "SELECT count(*) AS supported_formats FROM barcode.main.barcode_formats"},
-  {"description": "List the Code-family symbologies (CODE_39/93/128) alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats WHERE format LIKE 'CODE%' ORDER BY format"}
-]"#
+  {"description": "List the Code-family symbologies (CODE_39/93/128) alphabetically.", "sql": "SELECT format FROM barcode.main.barcode_formats WHERE format LIKE 'CODE%' ORDER BY format"},
+  "#,
+                composed_example_json!(format_coverage_desc, format_coverage_sql),
+                "\n]"
+            )
             .to_string(),
         ),
     ];

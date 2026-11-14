@@ -1,0 +1,60 @@
+# name: test/sql/composed.test
+# group: [vgi_barcode]
+#
+# Pins the rows of the composed (multi-object) example queries published in the
+# catalog metadata (crates/barcode-worker/src/composed.rs). The SQL here must be
+# byte-identical to those constants; a cargo unit test enforces that.
+
+require-env VGI_BARCODE_WORKER
+
+statement ok
+LOAD vgi;
+
+statement ok
+ATTACH 'barcode' AS barcode (TYPE vgi, LOCATION '${VGI_BARCODE_WORKER}');
+
+# Label QA: a leading-zero EAN-13 scans back as its 12-digit UPC_A, so it does
+# not round-trip; the other two do.
+query TTTT
+SELECT sku, barcode.main.barcode_format(png) AS format, barcode.main.decode_barcode(png) AS decoded, barcode.main.decode_barcode(png) = sku AS round_trips FROM (SELECT sku, barcode.main.generate_barcode(sku, 'EAN_13') AS png FROM (VALUES ('5901234123457'), ('4006381333931'), ('0036000291452')) AS t(sku)) ORDER BY sku
+----
+0036000291452	UPC_A	036000291452	false
+4006381333931	EAN_13	4006381333931	true
+5901234123457	EAN_13	5901234123457	true
+
+# Relabel: EAN-13 code -> product URL -> QR image -> one decoded QR symbol.
+query ITT
+SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('https://shop.example/p/' || barcode.main.decode_barcode(barcode.main.generate_barcode('4006381333931', 'EAN_13')))) ORDER BY seq
+----
+0	QR_CODE	https://shop.example/p/4006381333931
+
+# Symbology coverage: every supported format is listed, unused ones with 0.
+query TI
+WITH labels AS (SELECT barcode.main.generate_qr(t.ticket) AS png FROM (VALUES ('ticket-001'), ('ticket-002')) AS t(ticket) UNION ALL SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13') UNION ALL SELECT barcode.main.generate_barcode('PALLET-77', 'CODE_128')) SELECT f.format, count(l.png) AS labels FROM barcode.main.barcode_formats AS f LEFT JOIN labels AS l ON barcode.main.barcode_format(l.png) = f.format GROUP BY f.format ORDER BY labels DESC, f.format
+----
+QR_CODE	2
+CODE_128	1
+EAN_13	1
+AZTEC	0
+CODABAR	0
+CODE_39	0
+CODE_93	0
+DATA_MATRIX	0
+EAN_8	0
+ITF	0
+PDF_417	0
+UPC_A	0
+UPC_E	0
+
+# Agent task `count_ean13_mismatches` (grader in vgi-agent-tests.yaml): two of
+# the four codes have a leading zero and read back as UPC_A digits.
+query I
+SELECT count(*) FILTER (WHERE barcode.main.decode_barcode(barcode.main.generate_barcode(code, 'EAN_13')) <> code) AS mismatches FROM (VALUES ('0705632441947'), ('4006381333931'), ('9780201379624'), ('0036000291452')) AS t(code)
+----
+2
+
+statement ok
+USE memory;
+
+statement ok
+DETACH barcode;

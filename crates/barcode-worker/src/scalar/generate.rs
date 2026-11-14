@@ -38,10 +38,15 @@ const QR_EXAMPLE_QUERIES: &str = r#"[
   {"description": "Encode a URL as a 512x512-pixel QR-code PNG.", "sql": "SELECT barcode.main.generate_qr('https://query.farm', 512);"}
 ]"#;
 
-const BARCODE_EXAMPLE_QUERIES: &str = r#"[
+const BARCODE_EXAMPLE_QUERIES: &str = concat!(
+    r#"[
   {"description": "Encode text as a default-size Code 128 barcode PNG.", "sql": "SELECT barcode.main.generate_barcode('CODE128', 'CODE_128');"},
-  {"description": "Encode an EAN-13 product code as a 600-pixel-wide barcode PNG.", "sql": "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);"}
-]"#;
+  {"description": "Encode an EAN-13 product code as a 600-pixel-wide barcode PNG.", "sql": "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);"},
+  "#,
+    // Composed (crate::composed): generate -> scan back -> compare.
+    composed_example_json!(label_qa_desc, label_qa_sql),
+    "\n]"
+);
 
 /// A bind-time constant argument typed as ANY. We use ANY (rather than a
 /// concrete `varchar`/`int64`) for the *disambiguating* const args of our arity
