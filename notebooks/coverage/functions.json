@@ -1,0 +1,324 @@
+{
+  "query": "SELECT * FROM duckdb_functions() WHERE database_name='barcode' ORDER BY schema_name,function_name,parameter_types",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "function_name",
+    "alias_of",
+    "function_type",
+    "description",
+    "comment",
+    "tags",
+    "return_type",
+    "parameters",
+    "parameter_types",
+    "varargs",
+    "macro_definition",
+    "has_side_effects",
+    "internal",
+    "extension_name",
+    "function_oid",
+    "examples",
+    "stability",
+    "categories"
+  ],
+  "rows": [
+    [
+      "barcode",
+      "22592",
+      "main",
+      "barcode_format",
+      null,
+      "scalar",
+      "Format name of the first barcode/QR in an image BLOB, e.g. QR_CODE (NULL if none)",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "decode",
+        "vgi.doc_llm": "Identify the symbology (format) of the first barcode or QR code found in an image `BLOB` and return its canonical ZXing name, e.g. QR_CODE, EAN_13, CODE_128. Returns NULL when the image contains no symbol or cannot be decoded.",
+        "vgi.doc_md": "Return the **format name** of the first barcode/QR in an image `BLOB`, e.g. `QR_CODE`. Returns NULL when no symbol is found.",
+        "vgi.example_queries": "[{\"description\": \"Identify the symbology of the first barcode/QR in an image (e.g. 'QR_CODE').\", \"sql\": \"SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world'));\"}]",
+        "vgi.keywords": "[\"barcode format\",\"symbology\",\"detect format\",\"qr or barcode\",\"barcode_format\",\"format name\",\"identify barcode\",\"ean upc code128\"]",
+        "vgi.title": "Identify Barcode Format"
+      },
+      "VARCHAR",
+      [
+        "blob"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22596,
+      [
+        "SELECT barcode.main.barcode_format(barcode.main.generate_qr('hello world'));"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "barcode_formats",
+      null,
+      "table",
+      "List the supported barcode/QR format names",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "reference",
+        "vgi.doc_llm": "List every barcode/QR symbology name the worker can generate or decode, one row per format. Use it to discover which format strings are valid inputs to generate_barcode and which symbologies decode_barcode/decode_barcodes can recognize.",
+        "vgi.doc_md": "List the supported barcode/QR **format names**, one per row. Column: `format`.",
+        "vgi.keywords": "[\"supported formats\",\"list formats\",\"barcode formats\",\"symbologies\",\"available formats\",\"barcode_formats\",\"discovery\",\"which barcodes\"]",
+        "vgi.title": "Supported Barcode Formats"
+      },
+      null,
+      [],
+      [],
+      null,
+      null,
+      null,
+      true,
+      null,
+      22600,
+      [],
+      null,
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "decode_barcode",
+      null,
+      "scalar",
+      "Decode the first barcode/QR in an image BLOB to its text (NULL if none)",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "decode",
+        "vgi.doc_llm": "Decode the first barcode or QR code found in an image `BLOB` (PNG/JPEG/GIF/BMP/WebP) and return its decoded text payload. Returns NULL when the image contains no symbol or cannot be decoded; never errors on hostile input.",
+        "vgi.doc_md": "Decode the first barcode/QR in an image `BLOB` to its **text**. Returns NULL when no symbol is found.",
+        "vgi.example_queries": "[{\"description\": \"Decode the text of the first barcode/QR in an image (here a freshly generated QR).\", \"sql\": \"SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world'));\"}]",
+        "vgi.keywords": "[\"decode\",\"read barcode\",\"scan barcode\",\"qr decode\",\"barcode text\",\"decode_barcode\",\"read qr\",\"extract payload\"]",
+        "vgi.title": "Decode Barcode Text"
+      },
+      "VARCHAR",
+      [
+        "blob"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22597,
+      [
+        "SELECT barcode.main.decode_barcode(barcode.main.generate_qr('hello world'));"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "decode_barcodes",
+      null,
+      "table",
+      "Decode ALL barcodes/QR codes in an image BLOB into (seq, format, text) rows",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "decode",
+        "vgi.doc_llm": "Decode every barcode and QR code found in a single image `BLOB`, returning one row per symbol with its zero-based sequence index, detected format, and decoded text. An undecodable or hostile blob, or a valid image with no symbols, yields zero rows. The image is a bind-time constant argument.",
+        "vgi.doc_md": "Decode **all** barcodes/QR codes in an image `BLOB` into `(seq, format, text)` rows.",
+        "vgi.executable_examples": "[\n  {\n    \"description\": \"Decode every symbol in a freshly generated QR image.\",\n    \"sql\": \"SELECT seq, format, text FROM barcode.main.decode_barcodes(barcode.main.generate_qr('hello world')) ORDER BY seq\"\n  },\n  {\n    \"description\": \"Decode every symbol in a generated EAN-13 barcode image.\",\n    \"sql\": \"SELECT format, text FROM barcode.main.decode_barcodes(barcode.main.generate_barcode('5901234123457', 'EAN_13'))\"\n  }\n]",
+        "vgi.keywords": "[\"decode all barcodes\",\"multiple barcodes\",\"fan out\",\"every barcode\",\"decode_barcodes\",\"scan image\",\"all symbols\",\"table function\"]",
+        "vgi.result_columns_schema": "[\n  {\"name\": \"seq\", \"type\": \"BIGINT\", \"description\": \"Zero-based index of the symbol within the image, in detection order.\"},\n  {\"name\": \"format\", \"type\": \"VARCHAR\", \"description\": \"Detected symbology name in canonical ZXing form, e.g. QR_CODE, EAN_13, CODE_128.\"},\n  {\"name\": \"text\", \"type\": \"VARCHAR\", \"description\": \"Decoded payload text of the symbol.\"}\n]",
+        "vgi.title": "Decode All Barcodes In Image"
+      },
+      null,
+      [
+        "blob"
+      ],
+      [
+        "BLOB"
+      ],
+      null,
+      null,
+      null,
+      true,
+      null,
+      22601,
+      [],
+      null,
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "generate_barcode",
+      null,
+      "scalar",
+      "Generate a barcode PNG (BLOB) for the given text in a named symbology at the default size",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "generate",
+        "vgi.doc_llm": "Encode the given text in a named barcode symbology (e.g. EAN_13, UPC_A, CODE_128, CODE_39, ITF, CODABAR, DATA_MATRIX, PDF_417, AZTEC, QR_CODE) and return it as a PNG image `BLOB`. Optionally takes an image width in pixels (default 256). Use for producing scannable product/barcode images in SQL.",
+        "vgi.doc_md": "Generate a **barcode PNG** (`BLOB`) from text in a named symbology, optionally at a chosen pixel width.",
+        "vgi.example_queries": "[\n  {\"description\": \"Encode text as a default-size Code 128 barcode PNG.\", \"sql\": \"SELECT barcode.main.generate_barcode('CODE128', 'CODE_128');\"},\n  {\"description\": \"Encode an EAN-13 product code as a 600-pixel-wide barcode PNG.\", \"sql\": \"SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);\"}\n]",
+        "vgi.keywords": "[\"generate barcode\",\"make barcode\",\"encode barcode\",\"barcode png\",\"ean\",\"upc\",\"code 128\",\"code 39\",\"symbology\",\"generate_barcode\",\"create barcode image\"]",
+        "vgi.title": "Generate Barcode Image"
+      },
+      "BLOB",
+      [
+        "text",
+        "format"
+      ],
+      [
+        "VARCHAR",
+        "ANY"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22598,
+      [
+        "SELECT barcode.main.generate_barcode('CODE128', 'CODE_128');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "generate_barcode",
+      null,
+      "scalar",
+      "Generate a barcode PNG (BLOB) for the given text in a named symbology at a chosen pixel width",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "generate",
+        "vgi.doc_llm": "Encode the given text in a named barcode symbology (e.g. EAN_13, UPC_A, CODE_128, CODE_39, ITF, CODABAR, DATA_MATRIX, PDF_417, AZTEC, QR_CODE) and return it as a PNG image `BLOB`. Optionally takes an image width in pixels (default 256). Use for producing scannable product/barcode images in SQL.",
+        "vgi.doc_md": "Generate a **barcode PNG** (`BLOB`) from text in a named symbology, optionally at a chosen pixel width.",
+        "vgi.example_queries": "[\n  {\"description\": \"Encode text as a default-size Code 128 barcode PNG.\", \"sql\": \"SELECT barcode.main.generate_barcode('CODE128', 'CODE_128');\"},\n  {\"description\": \"Encode an EAN-13 product code as a 600-pixel-wide barcode PNG.\", \"sql\": \"SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);\"}\n]",
+        "vgi.keywords": "[\"generate barcode\",\"make barcode\",\"encode barcode\",\"barcode png\",\"ean\",\"upc\",\"code 128\",\"code 39\",\"symbology\",\"generate_barcode\",\"create barcode image\"]",
+        "vgi.title": "Generate Barcode Image"
+      },
+      "BLOB",
+      [
+        "text",
+        "format",
+        "size_px"
+      ],
+      [
+        "VARCHAR",
+        "ANY",
+        "ANY"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22598,
+      [
+        "SELECT barcode.main.generate_barcode('5901234123457', 'EAN_13', 600);"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "generate_qr",
+      null,
+      "scalar",
+      "Generate a QR-code PNG (BLOB) for the given text at the default size",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "generate",
+        "vgi.doc_llm": "Encode the given text as a QR code and return it as a PNG image `BLOB`. Optionally takes a square side length in pixels (default 256). Use for producing scannable QR codes from URLs, payloads, or arbitrary text in SQL.",
+        "vgi.doc_md": "Generate a **QR-code PNG** (`BLOB`) from text, optionally at a chosen pixel size.",
+        "vgi.example_queries": "[\n  {\"description\": \"Encode a URL as a default-size QR-code PNG.\", \"sql\": \"SELECT barcode.main.generate_qr('https://query.farm');\"},\n  {\"description\": \"Encode a URL as a 512x512-pixel QR-code PNG.\", \"sql\": \"SELECT barcode.main.generate_qr('https://query.farm', 512);\"}\n]",
+        "vgi.keywords": "[\"generate qr\",\"qr code\",\"make qr\",\"encode qr\",\"qr png\",\"create barcode image\",\"generate_qr\",\"scannable code\"]",
+        "vgi.title": "Generate QR Code Image"
+      },
+      "BLOB",
+      [
+        "text"
+      ],
+      [
+        "VARCHAR"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22599,
+      [
+        "SELECT barcode.main.generate_qr('https://query.farm');"
+      ],
+      "CONSISTENT",
+      []
+    ],
+    [
+      "barcode",
+      "22592",
+      "main",
+      "generate_qr",
+      null,
+      "scalar",
+      "Generate a QR-code PNG (BLOB) for the given text at a chosen pixel size",
+      null,
+      {
+        "domain": "imaging",
+        "vgi.category": "generate",
+        "vgi.doc_llm": "Encode the given text as a QR code and return it as a PNG image `BLOB`. Optionally takes a square side length in pixels (default 256). Use for producing scannable QR codes from URLs, payloads, or arbitrary text in SQL.",
+        "vgi.doc_md": "Generate a **QR-code PNG** (`BLOB`) from text, optionally at a chosen pixel size.",
+        "vgi.example_queries": "[\n  {\"description\": \"Encode a URL as a default-size QR-code PNG.\", \"sql\": \"SELECT barcode.main.generate_qr('https://query.farm');\"},\n  {\"description\": \"Encode a URL as a 512x512-pixel QR-code PNG.\", \"sql\": \"SELECT barcode.main.generate_qr('https://query.farm', 512);\"}\n]",
+        "vgi.keywords": "[\"generate qr\",\"qr code\",\"make qr\",\"encode qr\",\"qr png\",\"create barcode image\",\"generate_qr\",\"scannable code\"]",
+        "vgi.title": "Generate QR Code Image"
+      },
+      "BLOB",
+      [
+        "text",
+        "size_px"
+      ],
+      [
+        "VARCHAR",
+        "ANY"
+      ],
+      null,
+      null,
+      false,
+      true,
+      null,
+      22599,
+      [
+        "SELECT barcode.main.generate_qr('https://query.farm', 512);"
+      ],
+      "CONSISTENT",
+      []
+    ]
+  ]
+}

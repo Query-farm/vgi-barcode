@@ -1,0 +1,49 @@
+{
+  "query": "SELECT * FROM duckdb_tables() WHERE database_name='barcode' ORDER BY schema_name,table_name",
+  "columns": [
+    "database_name",
+    "database_oid",
+    "schema_name",
+    "schema_oid",
+    "table_name",
+    "table_oid",
+    "comment",
+    "tags",
+    "internal",
+    "temporary",
+    "has_primary_key",
+    "estimated_size",
+    "column_count",
+    "index_count",
+    "check_constraint_count",
+    "sql"
+  ],
+  "rows": [
+    [
+      "barcode",
+      22592,
+      "main",
+      22732,
+      "barcode_formats",
+      22733,
+      "Supported barcode/QR symbology names, one per row.",
+      {
+        "domain": "imaging",
+        "vgi.category": "reference",
+        "vgi.doc_llm": "The catalog of barcode/QR symbology names this worker can generate or decode, one row per format. Query it to discover which strings are valid for the `format` argument of generate_barcode and which symbologies decode_barcode / decode_barcodes can recognize.",
+        "vgi.doc_md": "# barcode_formats\n\nThe supported barcode/QR **symbology names**, one per row in the `format` column (canonical ZXing form, e.g. `QR_CODE`, `EAN_13`, `CODE_128`, `DATA_MATRIX`, `PDF_417`, `AZTEC`). Use these strings as the `format` argument to `generate_barcode`.",
+        "vgi.example_queries": "[\n  {\"description\": \"Count how many barcode/QR symbologies this worker supports.\", \"sql\": \"SELECT count(*) AS supported_formats FROM barcode.main.barcode_formats\"},\n  {\"description\": \"List the Code-family symbologies (CODE_39/93/128) alphabetically.\", \"sql\": \"SELECT format FROM barcode.main.barcode_formats WHERE format LIKE 'CODE%' ORDER BY format\"}\n]",
+        "vgi.keywords": "[\"supported formats\",\"list formats\",\"barcode formats\",\"symbologies\",\"available formats\",\"barcode_formats\",\"discovery\",\"which barcodes\"]",
+        "vgi.title": "Supported Barcode Formats"
+      },
+      false,
+      false,
+      true,
+      0,
+      1,
+      1,
+      0,
+      "CREATE TABLE barcode_formats(format VARCHAR, PRIMARY KEY(format));"
+    ]
+  ]
+}

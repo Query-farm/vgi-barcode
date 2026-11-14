@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "repository": "Query-farm/vgi-barcode",
+  "revision": "a5efededb68775588ae78c6c4da09358b8ec4c81",
+  "captured_at": "2026-11-14T17:38:23.153502+00:00",
+  "default_schema": "main",
+  "scope": "all_public_functions_and_tables",
+  "complete": true,
+  "evidence": [
+    {
+      "path": "coverage/functions-current.json",
+      "sha256": "c6e63841c9660ee0faa4823deabc079ff33665451e08e02bb290f2c82a72b35c",
+      "description": "Complete worker-filtered functions export from real Haybarn/VGI connection"
+    },
+    {
+      "path": "coverage/tables-current.json",
+      "sha256": "b39a05c8b84e50efc158e54d08a444c6e252440be2aafa5e2bac7959307fb4af",
+      "description": "Complete worker-filtered tables export from real Haybarn/VGI connection"
+    },
+    {
+      "path": "coverage/arguments-current.json",
+      "sha256": "0f89bb6e97dce06b8dd6bdb5eeb5a9a3b0a2bc8c1f426371f568933e4e41cf59",
+      "description": "Complete worker-filtered arguments export from real Haybarn/VGI connection"
+    }
+  ],
+  "objects": [
+    {
+      "schema": "main",
+      "name": "barcode_format",
+      "kind": "function",
+      "signatures": [
+        "barcode_format(BLOB) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "barcode_formats",
+      "kind": "function",
+      "signatures": [
+        "barcode_formats() -> None"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "decode_barcode",
+      "kind": "function",
+      "signatures": [
+        "decode_barcode(BLOB) -> VARCHAR"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "decode_barcodes",
+      "kind": "function",
+      "signatures": [
+        "decode_barcodes(BLOB) -> None"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "generate_barcode",
+      "kind": "function",
+      "signatures": [
+        "generate_barcode(VARCHAR, ANY) -> BLOB"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "generate_barcode",
+      "kind": "function",
+      "signatures": [
+        "generate_barcode(VARCHAR, ANY, ANY) -> BLOB"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "generate_qr",
+      "kind": "function",
+      "signatures": [
+        "generate_qr(VARCHAR) -> BLOB"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "generate_qr",
+      "kind": "function",
+      "signatures": [
+        "generate_qr(VARCHAR, ANY) -> BLOB"
+      ],
+      "authentication": "none",
+      "access": "read"
+    },
+    {
+      "schema": "main",
+      "name": "barcode_formats",
+      "kind": "table",
+      "signatures": [
+        "catalog table"
+      ],
+      "authentication": "none",
+      "access": "read"
+    }
+  ],
+  "runtime": "Haybarn 2.0.0rc11",
+  "launch": "Fresh cargo release build of current public source; validation only, reader notebook uses released native worker",
+  "review_notes": "Actual runtime exports: 8 overload rows and 1 table row merge to 6 logical surfaces; registration checked in scalar/mod.rs, table/mod.rs and lib.rs. Current changes from release add examples only; signatures match."
+}

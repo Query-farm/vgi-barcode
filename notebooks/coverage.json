@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "catalogs": {
+    "released": {
+      "path": "coverage/catalog-released.json",
+      "sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; runtime registration comparison",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+        "notes": "Full actual function and table exports from release and current-main build; 8 function overloads and 1 same-name table produce 6 logical surfaces. All are pure local read operations; no auth/write exclusions. Signatures match. Current source differs only in composed example metadata."
+      }
+    },
+    "current": {
+      "path": "coverage/catalog-current.json",
+      "sha256": "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0",
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; runtime registration comparison",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "catalog_sha256": "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0",
+        "notes": "Full actual function and table exports from release and current-main build; 8 function overloads and 1 same-name table produce 6 logical surfaces. All are pure local read operations; no auth/write exclusions. Signatures match. Current source differs only in composed example metadata."
+      }
+    }
+  },
+  "notebooks": [
+    {
+      "path": "01_label_identity_and_image_size.ipynb",
+      "sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+      "execution": {
+        "path": "coverage/run-01.json",
+        "sha256": "7d21ac041fbabd6d6817cb5a7bfc14091e18f4ed91e1269aabc5f4acae6cb016"
+      }
+    }
+  ],
+  "examples": [
+    {
+      "object": {
+        "schema": "main",
+        "name": "generate_barcode"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "sql": [
+        {
+          "cell": "generate-labels",
+          "reference": "barcode.main.generate_barcode"
+        }
+      ],
+      "narrative_cells": [
+        "generate-story"
+      ],
+      "result_cells": [
+        "qa-finding"
+      ],
+      "interpretation_cells": [
+        "qa-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; charts independently approved by /root",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "notebook_sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+        "catalog_sha256": [
+          "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+          "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0"
+        ],
+        "purpose": "Encode text identifiers as three EAN-13 and three Code128 labels before checking identity.",
+        "finding": "Six authored linear labels are decoded; the leading-zero EAN case remains a narrowly defined EAN/UPC equivalence rather than arbitrary zero stripping."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "generate_qr"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "sql": [
+        {
+          "cell": "generate-labels",
+          "reference": "barcode.main.generate_qr"
+        }
+      ],
+      "narrative_cells": [
+        "generate-story"
+      ],
+      "result_cells": [
+        "qa-finding"
+      ],
+      "interpretation_cells": [
+        "qa-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; charts independently approved by /root",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "notebook_sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+        "catalog_sha256": [
+          "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+          "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0"
+        ],
+        "purpose": "Encode URL, Unicode and parcel payloads and compare their original identities.",
+        "finding": "Three synthetic QR payloads round-trip and later form the multi-symbol image; no URL fetch occurs."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "decode_barcode"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "sql": [
+        {
+          "cell": "generate-labels",
+          "reference": "barcode.main.decode_barcode"
+        }
+      ],
+      "narrative_cells": [
+        "identity-rule"
+      ],
+      "result_cells": [
+        "qa-finding"
+      ],
+      "interpretation_cells": [
+        "qa-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; charts independently approved by /root",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "notebook_sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+        "catalog_sha256": [
+          "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+          "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0"
+        ],
+        "purpose": "Separate exact payload/format matches from explicit EAN/UPC equivalence and failures.",
+        "finding": "Nine digital labels give eight exact identities and one defined equivalence; physical scanning reliability is not inferred."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "barcode_format"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "sql": [
+        {
+          "cell": "generate-labels",
+          "reference": "barcode.main.barcode_format"
+        }
+      ],
+      "narrative_cells": [
+        "identity-rule"
+      ],
+      "result_cells": [
+        "qa-finding"
+      ],
+      "interpretation_cells": [
+        "qa-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; charts independently approved by /root",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "notebook_sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+        "catalog_sha256": [
+          "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+          "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0"
+        ],
+        "purpose": "Require the decoded symbology as well as text before applying the representation rule.",
+        "finding": "The leading-zero EAN-13 is recognized as UPC-A; the other authored labels retain their requested format."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "barcode_formats"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "sql": [
+        {
+          "cell": "format-coverage-query",
+          "reference": "barcode.main.barcode_formats"
+        }
+      ],
+      "narrative_cells": [
+        "formats-purpose"
+      ],
+      "result_cells": [
+        "qa-finding"
+      ],
+      "interpretation_cells": [
+        "qa-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; charts independently approved by /root",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "notebook_sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+        "catalog_sha256": [
+          "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+          "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0"
+        ],
+        "purpose": "Join the advertised format vocabulary to the test population so untested formats are visible.",
+        "finding": "Three advertised formats are exercised; zero counts identify untested formats, not decoder failures."
+      }
+    },
+    {
+      "object": {
+        "schema": "main",
+        "name": "decode_barcodes"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "sql": [
+        {
+          "cell": "decode-sheet",
+          "reference": "barcode.main.decode_barcodes"
+        }
+      ],
+      "narrative_cells": [
+        "multiple-story"
+      ],
+      "result_cells": [
+        "sheet-finding"
+      ],
+      "interpretation_cells": [
+        "sheet-finding"
+      ],
+      "review": {
+        "status": "approved",
+        "reviewer": "Codex /root/notebooks_earthquakes; charts independently approved by /root",
+        "reviewed_at": "2026-11-14T17:40:39.497899+00:00",
+        "notebook_sha256": "cbd8796292f808362a4b8242f81d70c3f3635257bee98b6056fdad402c6ea461",
+        "catalog_sha256": [
+          "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+          "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0"
+        ],
+        "purpose": "Compare one successful scalar decode with the complete decoded payload set of a three-symbol image.",
+        "finding": "All three expected QR payloads are returned at both requested image sizes while the scalar returns one; sequence is not assumed to encode spatial order."
+      }
+    }
+  ]
+}

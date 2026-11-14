@@ -1,0 +1,466 @@
+{
+  "schema_version": 1,
+  "status": "met",
+  "meets_target": true,
+  "catalogs": {
+    "released": {
+      "catalog_status": "verified",
+      "revision": "v0.4.0",
+      "catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8",
+      "collection_reconciled": true,
+      "denominator": 6,
+      "observed_objects": 6,
+      "required": 6,
+      "verified_count": 6,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 6,
+      "runtime_revisions": [
+        "v0.4.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_format"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_formats"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcode"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcodes"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_barcode"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_qr"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_format",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "barcode_format(BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_formats",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "barcode_formats() -> None",
+            "catalog table"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "decode_barcode(BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcodes",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "decode_barcodes(BLOB) -> None"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_barcode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "generate_barcode(VARCHAR, ANY) -> BLOB",
+            "generate_barcode(VARCHAR, ANY, ANY) -> BLOB"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_qr",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "generate_qr(VARCHAR) -> BLOB",
+            "generate_qr(VARCHAR, ANY) -> BLOB"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    },
+    "current": {
+      "catalog_status": "verified",
+      "revision": "a5efededb68775588ae78c6c4da09358b8ec4c81",
+      "catalog_sha256": "ac2634da69e17bc8b498d546a902997b5435ee4f875c0715e1cc7478f06d23a0",
+      "collection_reconciled": true,
+      "denominator": 6,
+      "observed_objects": 6,
+      "required": 6,
+      "verified_count": 6,
+      "candidate_count": 0,
+      "fraction": 1.0,
+      "meets_target": true,
+      "exact_runtime_count": 0,
+      "runtime_revisions": [
+        "v0.4.0"
+      ],
+      "covered": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_format"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_formats"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcode"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcodes"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_barcode"
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_qr"
+        }
+      ],
+      "uncovered": [],
+      "objects": [
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_format",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "barcode_format(BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "barcode_formats",
+          "kinds": [
+            "function",
+            "table"
+          ],
+          "signatures": [
+            "barcode_formats() -> None",
+            "catalog table"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "decode_barcode(BLOB) -> VARCHAR"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "decode_barcodes",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "decode_barcodes(BLOB) -> None"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_barcode",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "generate_barcode(VARCHAR, ANY) -> BLOB",
+            "generate_barcode(VARCHAR, ANY, ANY) -> BLOB"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        },
+        {
+          "schema": [
+            "main"
+          ],
+          "name": "generate_qr",
+          "kinds": [
+            "function"
+          ],
+          "signatures": [
+            "generate_qr(VARCHAR) -> BLOB",
+            "generate_qr(VARCHAR, ANY) -> BLOB"
+          ],
+          "access": [
+            "read"
+          ],
+          "authentication": [
+            "none"
+          ]
+        }
+      ],
+      "issues": []
+    }
+  },
+  "interface_drift": {
+    "known": true,
+    "current_only": [],
+    "released_only": [],
+    "changed": []
+  },
+  "notebooks": {
+    "01_label_identity_and_image_size.ipynb": {
+      "verified": true,
+      "issues": []
+    }
+  },
+  "examples": [
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "generate_barcode"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "generate_qr"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "decode_barcode"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "barcode_format"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "barcode_formats"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8"
+    },
+    {
+      "status": "verified",
+      "issues": [],
+      "verified_catalogs": [
+        "released",
+        "current"
+      ],
+      "object": {
+        "schema": [
+          "main"
+        ],
+        "name": "decode_barcodes"
+      },
+      "notebook": "01_label_identity_and_image_size.ipynb",
+      "runtime_revision": "v0.4.0",
+      "runtime_catalog_sha256": "7b0b4058594dc69c5285c0665689729740ccd3dab8b5fd48015f1b0a7d236ca8"
+    }
+  ],
+  "issues": []
+}
