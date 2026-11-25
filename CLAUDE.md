@@ -14,7 +14,7 @@ decode and generation to DuckDB/SQL over Arrow IPC. Built on the `vgi` crate
 ## Layout
 
 ```
-Cargo.toml                          workspace; pins vgi = "0.51.0" (arrow 59), rxing, image
+Cargo.toml                          workspace; pins vgi = "0.53.2" (arrow 59), rxing, image
 crates/barcode-worker/
   src/main.rs                       native entrypoint: build_worker().run()
   src/lib.rs                        build_worker(): registers scalars + tables, catalog/schema metadata
